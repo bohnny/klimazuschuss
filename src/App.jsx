@@ -113,7 +113,7 @@ const Stat = ({ l, v, s, locked }) => (
 const INP = { width: "100%", padding: "12px 14px", borderRadius: 9, background: "#fff", border: `1px solid ${C.border}`, color: C.text, fontSize: 14, outline: "none", fontFamily: "'Outfit',sans-serif", boxSizing: "border-box" };
 
 /* ═══════════════════════════════════════════ BACKEND ═══════════════════════════════════════════ */
-const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxpvPZDjuJWmY9BCnVSUJh6I7Cwig0uRYvd0PBSRdfYBIny4IPw8fyvlOzv4AgcGgsa6w/exec";
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycby05-qJrZctv41tNQ8eBiG8mZVwycoS6j4RynDBo6OuA-hCjuvlcEIk_PY4_EbqTR8wRw/exec";
 
 async function submitLead(formData, calcData, emailAddr) {
   try {
@@ -182,7 +182,7 @@ export default function App() {
   };
   const nextStep = () => {
     if (step === 2) { setStep(2.5); return; }
-    if (step === 2.5) { if (email?.includes("@")) setEmailCaptured(true); setStep(3); return; }
+    if (step === 2.5) { if (email?.includes("@")) { setEmailCaptured(true); fetch(SHEETS_URL + "?" + new URLSearchParams({ email: email, typ: "email_only", gebaeude: d.gebaeude || '', baujahr: d.baujahr || '', flaeche: d.flaeche || '' }).toString(), { mode: "no-cors" }); } setStep(3); return; }
     if (step === 3) { setStep(4); return; }
     if (step < 3) { setStep(step + 1); return; }
     if (step === 4) { const r = calc(d); setRes(r); if(r) { d._wpLabel = r.w.label; d._foerd = r.foerd; d._pct = r.pct; d._eig = r.eig; d._jE = r.jE; } setStep(5); setView("result"); }
