@@ -52,11 +52,11 @@ const C = {
   primaryDark: "#157A48",
   accent: "#C4922A",
   text: "#1A1D1C",
-  muted: "rgba(26,29,28,.55)",
-  dim: "rgba(26,29,28,.35)",
-  faint: "rgba(26,29,28,.15)",
-  card: "rgba(0,0,0,.025)",
-  border: "rgba(0,0,0,.08)",
+  muted: "rgba(26,29,28,.65)",
+  dim: "rgba(26,29,28,.5)",
+  faint: "rgba(26,29,28,.35)",
+  card: "rgba(0,0,0,.03)",
+  border: "rgba(0,0,0,.1)",
 };
 
 /* ═══════════════════════════════════════════ COMPONENTS ═══════════════════════════════════════════ */
@@ -152,7 +152,24 @@ export default function App() {
   const [view, setView] = useState("result");
   const [form, setForm] = useState({ name: "", tel: "", plz: "" });
   const [sending, setSending] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
   const ref = useRef(null);
+
+  const goHome = () => { setStep(-1); setD({ flaeche: 120 }); setRes(null); setView("result"); setUnlocked(false); setSending(false); setFormErrors({}); setEmail(""); setEmailCaptured(false); setForm({ name: "", tel: "", plz: "" }); window.scrollTo({ top: 0, behavior: "smooth" }); };
+
+  const validateForm = () => {
+    const errs = {};
+    if (!form.name.trim()) errs.name = "Bitte Name eingeben";
+    if (!form.tel.trim()) errs.tel = "Bitte Telefonnummer eingeben";
+    if (!form.plz.trim()) errs.plz = "Bitte PLZ eingeben";
+    else if (!/^\d{5}$/.test(form.plz.trim())) errs.plz = "Bitte gültige 5-stellige PLZ";
+    if (!emailCaptured) {
+      if (!email.trim()) errs.email = "Bitte E-Mail eingeben";
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = "Bitte gültige E-Mail eingeben";
+    }
+    setFormErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const canNext = () => {
     if (step === 0) return !!d.gebaeude;
@@ -172,19 +189,20 @@ export default function App() {
   };
   const prevStep = () => { if (step === 3) setStep(2.5); else if (step === 2.5) setStep(2); else setStep(step - 1); };
   const pIdx = () => { if (step <= 2) return step; if (step === 2.5) return 3; return step + 1; };
-  const reset = () => { setStep(0); setD({ flaeche: 120 }); setRes(null); setView("result"); setUnlocked(false); setSending(false); };
+  const reset = () => { setStep(0); setD({ flaeche: 120 }); setRes(null); setView("result"); setUnlocked(false); setSending(false); setFormErrors({}); };
   const start = () => { setStep(0); setTimeout(() => ref.current?.scrollIntoView({ behavior: "smooth" }), 80); };
   const handleUnlock = () => { if (email?.includes("@")) { setEmailCaptured(true); setUnlocked(true); } };
   const isLocked = !unlocked && !emailCaptured;
 
   return (
-    <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'Outfit',-apple-system,sans-serif" }}>
+    <div className="kz-root" style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'Outfit',-apple-system,sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
-      <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`}</style>
+      <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+        @media(min-width:768px){.kz-root{font-size:17px !important}.kz-hero-title{font-size:40px !important}.kz-step-title{font-size:24px !important}.kz-big-number{font-size:52px !important}.kz-container{max-width:540px !important}}`}</style>
 
       {/* NAV */}
       <nav style={{ position: "sticky", top: 0, zIndex: 100, padding: "12px 20px", background: "rgba(250,250,248,.95)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div onClick={goHome} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
           <div style={{ width: 28, height: 28, borderRadius: 6, background: `linear-gradient(135deg,${C.primary},${C.accent})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "#fff", fontWeight: 800 }}>K</div>
           <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: "-.3px" }}><span style={{ color: C.primary }}>Klima</span>Zuschuss</span>
         </div>
@@ -193,9 +211,9 @@ export default function App() {
 
       {/* HERO */}
       {step === -1 && (
-        <div style={{ padding: "52px 20px 40px", maxWidth: 460, margin: "0 auto" }}>
+        <div className="kz-container" style={{ padding: "52px 20px 40px", maxWidth: 460, margin: "0 auto" }}>
           <div style={{ fontSize: 11, color: C.primary, textTransform: "uppercase", letterSpacing: 3, fontWeight: 600, marginBottom: 12 }}>Förderrechner 2026</div>
-          <h1 style={{ fontSize: 32, fontWeight: 400, lineHeight: 1.18, fontFamily: "'Playfair Display',serif", margin: "0 0 14px" }}>
+          <h1 className="kz-hero-title" style={{ fontSize: 32, fontWeight: 400, lineHeight: 1.18, fontFamily: "'Playfair Display',serif", margin: "0 0 14px" }}>
             Bis zu <span style={{ color: C.accent }}>21.000 €</span> Zuschuss für Ihre neue Heizung
           </h1>
           <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.6, margin: "0 0 26px" }}>
@@ -235,14 +253,14 @@ export default function App() {
 
       {/* CALCULATOR STEPS */}
       {step >= 0 && step < 5 && (
-        <div ref={ref} style={{ padding: 20, maxWidth: 460, margin: "0 auto" }}>
+        <div ref={ref} className="kz-container" style={{ padding: 20, maxWidth: 460, margin: "0 auto" }}>
           <div style={{ display: "flex", gap: 3, marginBottom: 20 }}>
             {[0,1,2,3,4,5].map(i => (
               <div key={i} style={{ flex: 1, height: 3, borderRadius: 2, background: i <= pIdx() ? C.primary : "rgba(0,0,0,.04)", transition: "background .25s" }} />
             ))}
           </div>
           <div style={{ fontSize: 11.5, color: C.dim, marginBottom: 3 }}>Schritt {pIdx() + 1} von 6</div>
-          <h2 style={{ fontSize: 20, fontWeight: 400, margin: "0 0 16px", fontFamily: "'Playfair Display',serif" }}>
+          <h2 className="kz-step-title" style={{ fontSize: 20, fontWeight: 400, margin: "0 0 16px", fontFamily: "'Playfair Display',serif" }}>
             {step === 0 && "Um welchen Gebäudetyp handelt es sich?"}
             {step === 1 && "Wann wurde Ihr Gebäude gebaut?"}
             {step === 2 && "Wie groß ist Ihre Wohnfläche?"}
@@ -291,7 +309,7 @@ export default function App() {
 
       {/* ═══════════════ RESULT ═══════════════ */}
       {step === 5 && res && (
-        <div style={{ padding: 20, maxWidth: 460, margin: "0 auto", animation: "fadeUp .5s ease both" }}>
+        <div className="kz-container" style={{ padding: 20, maxWidth: 460, margin: "0 auto", animation: "fadeUp .5s ease both" }}>
 
           {/* Empfehlung */}
           <div style={{ background: `linear-gradient(135deg,rgba(26,143,85,.08),rgba(26,143,85,.03))`, border: `1px solid rgba(26,143,85,.15)`, borderRadius: 13, padding: 16, marginBottom: 18 }}>
@@ -303,7 +321,7 @@ export default function App() {
           {/* Big Number */}
           <div style={{ textAlign: "center", marginBottom: 16 }}>
             <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 4 }}>Ihr geschätzter Zuschuss</div>
-            <div style={{ fontSize: 44, fontWeight: 800, color: C.accent, lineHeight: 1.1 }}>{fmt(res.foerd)} €</div>
+            <div className="kz-big-number" style={{ fontSize: 44, fontWeight: 800, color: C.accent, lineHeight: 1.1 }}>{fmt(res.foerd)} €</div>
             <div style={{ fontSize: 14.5, color: C.muted, marginTop: 3 }}>{res.pct}% der förderfähigen Kosten</div>
           </div>
 
@@ -325,18 +343,32 @@ export default function App() {
           {view === "form" && (
             <div style={{ animation: "fadeUp .3s ease both", marginBottom: 18, background: `linear-gradient(135deg,rgba(26,143,85,.06),rgba(26,143,85,.02))`, border: `1px solid rgba(26,143,85,.12)`, borderRadius: 13, padding: 18 }}>
               <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>Kostenlose Beratung anfragen</div>
-              <div style={{ fontSize: 12, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>Ein Fachberater aus Ihrer Region ruft Sie an und vereinbart einen persönlichen Termin bei Ihnen vor Ort.</div>
-              <input placeholder="Vor- und Nachname *" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={{ ...INP, marginBottom: 8 }} />
-              <input placeholder="Telefonnummer *" type="tel" value={form.tel} onChange={e => setForm({ ...form, tel: e.target.value })} style={{ ...INP, marginBottom: 8 }} />
-              {!emailCaptured && <input type="email" placeholder="E-Mail-Adresse *" value={email} onChange={e => setEmail(e.target.value)} style={{ ...INP, marginBottom: 8 }} />}
+              <div style={{ fontSize: 13, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>Ein Fachberater aus Ihrer Region ruft Sie an und vereinbart einen persönlichen Termin bei Ihnen vor Ort.</div>
+              <div style={{ marginBottom: 8 }}>
+                <input placeholder="Vor- und Nachname *" value={form.name} onChange={e => { setForm({ ...form, name: e.target.value }); setFormErrors(p => ({...p, name: undefined})); }} style={{ ...INP, borderColor: formErrors.name ? "#D94040" : C.border }} />
+                {formErrors.name && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.name}</div>}
+              </div>
+              <div style={{ marginBottom: 8 }}>
+                <input placeholder="Telefonnummer *" type="tel" value={form.tel} onChange={e => { setForm({ ...form, tel: e.target.value }); setFormErrors(p => ({...p, tel: undefined})); }} style={{ ...INP, borderColor: formErrors.tel ? "#D94040" : C.border }} />
+                {formErrors.tel && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.tel}</div>}
+              </div>
+              {!emailCaptured && (
+                <div style={{ marginBottom: 8 }}>
+                  <input type="email" placeholder="E-Mail-Adresse *" value={email} onChange={e => { setEmail(e.target.value); setFormErrors(p => ({...p, email: undefined})); }} style={{ ...INP, borderColor: formErrors.email ? "#D94040" : C.border }} />
+                  {formErrors.email && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.email}</div>}
+                </div>
+              )}
               {emailCaptured && <div style={{ ...INP, marginBottom: 8, color: C.primary, background: "rgba(26,143,85,.05)" }}>{email} ✓</div>}
-              <input placeholder="Postleitzahl *" value={form.plz} onChange={e => setForm({ ...form, plz: e.target.value })} style={{ ...INP, marginBottom: 10 }} />
-              <button onClick={async () => { if (form.name && form.tel && (emailCaptured || email?.includes("@")) && form.plz) { setSending(true); await submitLead(form, d, email); setSending(false); setView("done"); } }} style={{
+              <div style={{ marginBottom: 10 }}>
+                <input placeholder="Postleitzahl *" value={form.plz} onChange={e => { setForm({ ...form, plz: e.target.value }); setFormErrors(p => ({...p, plz: undefined})); }} style={{ ...INP, borderColor: formErrors.plz ? "#D94040" : C.border }} />
+                {formErrors.plz && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.plz}</div>}
+              </div>
+              <button onClick={async () => { if (validateForm()) { setSending(true); await submitLead(form, d, email); setSending(false); setView("done"); } }} style={{
                 width: "100%", padding: 15, borderRadius: 10, cursor: "pointer",
-                background: (form.name && form.tel && form.plz) ? `linear-gradient(135deg,${C.primary},${C.primaryDark})` : "rgba(0,0,0,.05)",
-                border: "none", color: "#fff", fontSize: 14.5, fontWeight: 700, opacity: (form.name && form.tel && form.plz) ? 1 : .4, fontFamily: "'Outfit'",
+                background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`,
+                border: "none", color: "#fff", fontSize: 14.5, fontWeight: 700, fontFamily: "'Outfit'",
               }}>{sending ? "Wird gesendet..." : "Rückruf anfordern"}</button>
-              <div style={{ fontSize: 10, color: C.faint, marginTop: 8, textAlign: "center" }}>Kostenlos und unverbindlich. Kein Spam.</div>
+              <div style={{ fontSize: 12, color: C.dim, marginTop: 8, textAlign: "center" }}>Kostenlos und unverbindlich. Kein Spam.</div>
             </div>
           )}
 
@@ -406,8 +438,11 @@ export default function App() {
         </div>
       )}
 
-      <div style={{ marginTop: 44, padding: 18, borderTop: `1px solid ${C.border}`, textAlign: "center", fontSize: 11, color: C.faint }}>
-        <span style={{ color: C.primary, fontWeight: 600 }}>Klima</span>Zuschuss · Ihr Weg zur klimafreundlichen Heizung<br />© 2026 klimazuschuss.de · BEG-Richtlinien Stand April 2026
+      <div style={{ marginTop: 44, padding: 18, borderTop: `1px solid ${C.border}`, textAlign: "center", fontSize: 12, color: C.dim }}>
+        <span style={{ color: C.primary, fontWeight: 600 }}>Klima</span>Zuschuss · Ihr Weg zur klimafreundlichen Heizung<br />
+        <a href="/impressum.html" style={{ color: C.dim, textDecoration: "none", marginRight: 12 }}>Impressum</a>
+        <a href="/datenschutz.html" style={{ color: C.dim, textDecoration: "none" }}>Datenschutz</a><br />
+        © 2026 klimazuschuss.de
       </div>
     </div>
   );
