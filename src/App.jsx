@@ -112,8 +112,25 @@ const Stat = ({ l, v, s, locked }) => (
 
 const INP = { width: "100%", padding: "12px 14px", borderRadius: 9, background: "#fff", border: `1px solid ${C.border}`, color: C.text, fontSize: 14, outline: "none", fontFamily: "'Outfit',sans-serif", boxSizing: "border-box" };
 
+/* ═══════════════════════════════════════════ TRACKING ═══════════════════════════════════════════ */
+const trackEvent = (eventName, params = {}) => {
+  try {
+    if (window.gtag) {
+      window.gtag('event', eventName, params);
+    }
+  } catch(e) {}
+};
+
+const trackConversion = () => {
+  try {
+    if (window.gtag) {
+      window.gtag('event', 'conversion', { send_to: 'AW-18061857220/LEAD' });
+    }
+  } catch(e) {}
+};
+
 /* ═══════════════════════════════════════════ BACKEND ═══════════════════════════════════════════ */
-const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxpvPZDjuJWmY9BCnVSUJh6I7Cwig0uRYvd0PBSRdfYBIny4IPw8fyvlOzv4AgcGgsa6w/exec";
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycby05-qJrZctv41tNQ8eBiG8mZVwycoS6j4RynDBo6OuA-hCjuvlcEIk_PY4_EbqTR8wRw/exec";
 
 async function submitLead(formData, calcData, emailAddr) {
   try {
@@ -181,17 +198,17 @@ export default function App() {
     return false;
   };
   const nextStep = () => {
-    if (step === 2) { setStep(2.5); return; }
-    if (step === 2.5) { if (email?.includes("@")) { setEmailCaptured(true); fetch(SHEETS_URL + "?" + new URLSearchParams({ email: email, typ: "email_only", gebaeude: d.gebaeude || '', baujahr: d.baujahr || '', flaeche: d.flaeche || '' }).toString(), { mode: "no-cors" }); } setStep(3); return; }
-    if (step === 3) { setStep(4); return; }
-    if (step < 3) { setStep(step + 1); return; }
-    if (step === 4) { const r = calc(d); setRes(r); if(r) { d._wpLabel = r.w.label; d._foerd = r.foerd; d._pct = r.pct; d._eig = r.eig; d._jE = r.jE; } setStep(5); setView("result"); }
+    if (step === 2) { setStep(2.5); trackEvent('funnel_step', { step: 'wohnflaeche' }); return; }
+    if (step === 2.5) { if (email?.includes("@")) { setEmailCaptured(true); trackEvent('email_captured'); fetch(SHEETS_URL + "?" + new URLSearchParams({ email: email, typ: "email_only", gebaeude: d.gebaeude || '', baujahr: d.baujahr || '', flaeche: d.flaeche || '' }).toString(), { mode: "no-cors" }); } setStep(3); return; }
+    if (step === 3) { setStep(4); trackEvent('funnel_step', { step: 'heizung' }); return; }
+    if (step < 3) { setStep(step + 1); trackEvent('funnel_step', { step: step === 0 ? 'gebaeude' : 'baujahr' }); return; }
+    if (step === 4) { const r = calc(d); setRes(r); if(r) { d._wpLabel = r.w.label; d._foerd = r.foerd; d._pct = r.pct; d._eig = r.eig; d._jE = r.jE; } setStep(5); setView("result"); trackEvent('funnel_result', { foerderung: r?.foerd, prozent: r?.pct }); }
   };
   const prevStep = () => { if (step === 3) setStep(2.5); else if (step === 2.5) setStep(2); else setStep(step - 1); };
   const pIdx = () => { if (step <= 2) return step; if (step === 2.5) return 3; return step + 1; };
   const reset = () => { setStep(0); setD({ flaeche: 120 }); setRes(null); setView("result"); setUnlocked(false); setSending(false); setFormErrors({}); };
-  const start = () => { setStep(0); setTimeout(() => ref.current?.scrollIntoView({ behavior: "smooth" }), 80); };
-  const handleUnlock = () => { if (email?.includes("@")) { setEmailCaptured(true); setUnlocked(true); } };
+  const start = () => { setStep(0); trackEvent('funnel_start'); setTimeout(() => ref.current?.scrollIntoView({ behavior: "smooth" }), 80); };
+  const handleUnlock = () => { if (email?.includes("@")) { setEmailCaptured(true); setUnlocked(true); trackEvent('email_unlock'); } };
   const isLocked = !unlocked && !emailCaptured;
 
   return (
@@ -328,7 +345,7 @@ export default function App() {
           {/* CTA / FORM / DONE - inline after big number */}
           {view === "result" && (
             <div style={{ marginBottom: 18 }}>
-              <button onClick={() => setView("form")} style={{
+              <button onClick={() => { setView("form"); trackEvent('cta_clicked'); }} style={{
                 width: "100%", padding: 16, borderRadius: 11, cursor: "pointer",
                 background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, border: "none",
                 color: "#fff", fontSize: 15, fontWeight: 700, marginBottom: 6,
@@ -363,7 +380,7 @@ export default function App() {
                 <input placeholder="Postleitzahl *" value={form.plz} onChange={e => { setForm({ ...form, plz: e.target.value }); setFormErrors(p => ({...p, plz: undefined})); }} style={{ ...INP, borderColor: formErrors.plz ? "#D94040" : C.border }} />
                 {formErrors.plz && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.plz}</div>}
               </div>
-              <button onClick={async () => { if (validateForm()) { setSending(true); await submitLead(form, d, email); setSending(false); setView("done"); } }} style={{
+              <button onClick={async () => { if (validateForm()) { setSending(true); await submitLead(form, d, email); trackConversion(); trackEvent('lead_submitted', { plz: form.plz }); setSending(false); setView("done"); } }} style={{
                 width: "100%", padding: 15, borderRadius: 10, cursor: "pointer",
                 background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`,
                 border: "none", color: "#fff", fontSize: 14.5, fontWeight: 700, fontFamily: "'Outfit'",
