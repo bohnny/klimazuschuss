@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wärmepumpe Förderung 2026: Bis zu 21.000 € Zuschuss sichern | WärmeWechsel</title>
+<meta name="description" content="Alle BEG-Fördersätze 2026 für Wärmepumpen auf einen Blick: Grundförderung, Effizienzbonus, Geschwindigkeitsbonus, Einkommensbonus. Mit kostenlosem Förderrechner.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0E0E0E;color:#EDE9E0;font-family:'DM Sans',-apple-system,sans-serif;line-height:1.7}
+  nav{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(14,14,14,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.04);display:flex;justify-content:space-between;align-items:center}
+  .logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:#EDE9E0}
+  .logo-icon{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#D96B0C,#E8A33C);display:flex;align-items:center;justify-content:center;font-size:15px}
+  .logo span{font-weight:700;font-size:17px;letter-spacing:-.3px}
+  .accent{color:#D96B0C}
+  .nav-cta{padding:7px 14px;border-radius:7px;background:#D96B0C;border:none;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:none}
+  .container{max-width:680px;margin:0 auto;padding:0 20px}
+  .hero{padding:48px 0 36px}
+  .hero .tag{font-size:11.5px;color:#D96B0C;text-transform:uppercase;letter-spacing:3px;font-weight:600;margin-bottom:12px}
+  .hero h1{font-size:32px;font-weight:400;line-height:1.2;font-family:'Instrument Serif',serif;margin-bottom:14px}
+  .hero .meta{font-size:13px;color:rgba(237,233,224,.4)}
+  .cta-box{background:linear-gradient(135deg,rgba(217,107,12,.1),rgba(217,107,12,.04));border:1px solid rgba(217,107,12,.18);border-radius:14px;padding:20px;margin:28px 0;text-align:center}
+  .cta-box p{font-size:14px;color:rgba(237,233,224,.65);margin-bottom:12px;line-height:1.5}
+  .cta-btn{display:inline-block;padding:14px 28px;border-radius:10px;background:linear-gradient(135deg,#D96B0C,#C45D08);color:#fff;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 4px 16px rgba(217,107,12,.25)}
+  article h2{font-size:24px;font-weight:400;font-family:'Instrument Serif',serif;margin:36px 0 14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05)}
+  article h3{font-size:17px;font-weight:700;margin:24px 0 8px;color:#D96B0C}
+  article p{font-size:15px;color:rgba(237,233,224,.7);margin-bottom:14px}
+  article strong{color:#EDE9E0}
+  .ft{width:100%;border-collapse:collapse;margin:16px 0 20px;font-size:14px}
+  .ft th{text-align:left;padding:10px 12px;background:rgba(217,107,12,.08);color:#D96B0C;font-weight:600;border-bottom:1px solid rgba(255,255,255,.06)}
+  .ft td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);color:rgba(237,233,224,.65)}
+  .ft tr:last-child td{border-bottom:2px solid rgba(217,107,12,.3);font-weight:700;color:#EDE9E0}
+  .ex{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px;margin:16px 0 20px}
+  .ex .lb{font-size:12px;color:#D96B0C;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:8px}
+  .ex p{font-size:14px;margin-bottom:8px}
+  .ex .res{font-size:22px;font-weight:800;color:#D96B0C}
+  .ib{background:rgba(46,170,95,.06);border:1px solid rgba(46,170,95,.15);border-radius:10px;padding:14px 16px;margin:14px 0}
+  .ib p{color:rgba(237,233,224,.6);font-size:13.5px;margin:0}
+  .ib strong{color:#2EAA5F}
+  .fq{margin-bottom:18px}
+  .fq h3{color:#EDE9E0;font-size:15.5px;margin-bottom:4px}
+  .fq p{font-size:14px}
+  footer{margin-top:48px;padding:20px;border-top:1px solid rgba(255,255,255,.04);text-align:center;font-size:11.5px;color:rgba(237,233,224,.15)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><div class="logo-icon">♨</div><span><span class="accent">Wärme</span>Wechsel</span></a>
+  <a href="/rechner" class="nav-cta">Förderung berechnen</a>
+</nav>
+<div class="container">
+<div class="hero">
+  <div class="tag">Ratgeber</div>
+  <h1>Wärmepumpe Förderung 2026: Bis zu <span class="accent">21.000 €</span> Zuschuss vom Staat</h1>
+  <div class="meta">Aktualisiert: April 2026 · Lesezeit: 8 Minuten</div>
+</div>
+<article>
+
+<p>Der Staat fördert den Einbau einer Wärmepumpe 2026 mit bis zu 70 % der Investitionskosten. Bei förderfähigen Kosten von maximal 30.000 € für ein Einfamilienhaus ergibt das <strong>bis zu 21.000 € Zuschuss</strong>. Die Förderung läuft über die KfW im Rahmen der Bundesförderung für effiziente Gebäude (BEG) und muss <strong>vor Beginn der Maßnahme</strong> beantragt werden.</p>
+
+<p>In diesem Ratgeber erfahren Sie, aus welchen Bausteinen sich die Förderung zusammensetzt, welche Voraussetzungen gelten und wie Sie den maximalen Zuschuss für Ihre Situation sichern.</p>
+
+<div class="cta-box">
+  <p>Sie möchten wissen, wie viel Förderung Ihnen persönlich zusteht? Unser Rechner ermittelt Ihre individuelle Fördersumme in 2 Minuten.</p>
+  <a href="/rechner" class="cta-btn">Jetzt Förderung berechnen →</a>
+</div>
+
+<h2>Die vier Förder-Bausteine im Überblick</h2>
+
+<p>Die BEG-Förderung für Wärmepumpen setzt sich 2026 aus vier kombinierbaren Bausteinen zusammen. Die Gesamtförderung ist auf maximal 70 % gedeckelt.</p>
+
+<table class="ft">
+  <tr><th>Baustein</th><th>Fördersatz</th><th>Voraussetzung</th></tr>
+  <tr><td>Grundförderung</td><td><strong>30 %</strong></td><td>Gilt für jede förderfähige Wärmepumpe</td></tr>
+  <tr><td>Effizienzbonus</td><td><strong>+ 5 %</strong></td><td>Natürliches Kältemittel (R290) oder Erd-/Wasserwärmepumpe</td></tr>
+  <tr><td>Klimageschwindigkeitsbonus</td><td><strong>+ 20 %</strong></td><td>Austausch einer Öl-, Gas-, Kohle- oder Nachtspeicherheizung</td></tr>
+  <tr><td>Einkommensbonus</td><td><strong>+ 30 %</strong></td><td>Zu versteuerndes Haushaltseinkommen unter 40.000 €/Jahr</td></tr>
+  <tr><td>Maximal möglich</td><td><strong>70 %</strong></td><td>Summe aller Bausteine, gedeckelt</td></tr>
+</table>
+
+<h3>Grundförderung: 30 % für alle</h3>
+<p>Jeder Eigentümer, der eine förderfähige Wärmepumpe einbauen lässt, erhält die Grundförderung von 30 %. Das gilt unabhängig davon, welche Heizung aktuell verbaut ist. Die Wärmepumpe muss eine Jahresarbeitszahl von mindestens 3,0 und eine Raumheizungs-Effizienz (ETAs) von 145 bis 180 % bei 35 °C Vorlauftemperatur erreichen.</p>
+
+<h3>Effizienzbonus: + 5 %</h3>
+<p>Den Effizienzbonus erhalten Sie, wenn Ihre Wärmepumpe ein natürliches Kältemittel wie Propan (R290) verwendet oder als Erd- bzw. Wasserwärmepumpe betrieben wird. Da die meisten modernen Geräte inzwischen auf R290 setzen, qualifizieren sich viele aktuelle Modelle automatisch.</p>
+
+<h3>Klimageschwindigkeitsbonus: + 20 %</h3>
+<p>Dieser Bonus belohnt den schnellen Umstieg von fossilen Heizungen. Sie erhalten ihn beim Austausch einer funktionstüchtigen Gasheizung (mindestens 20 Jahre alt), Ölheizung, Kohleheizung oder Nachtspeicherheizung. Der Bonus gilt in voller Höhe bis Ende 2028 und sinkt danach schrittweise.</p>
+
+<div class="ib"><p><strong>Wichtig:</strong> Der Klimageschwindigkeitsbonus wird ab 2029 auf 17 % reduziert und sinkt alle zwei Jahre um weitere 3 %. Wer den vollen Bonus mitnehmen will, sollte bis Ende 2028 den Förderantrag stellen.</p></div>
+
+<h3>Einkommensbonus: + 30 %</h3>
+<p>Dieser Bonus richtet sich an Haushalte mit einem zu versteuernden Jahreseinkommen unter 40.000 €. Maßgeblich ist der letzte verfügbare Steuerbescheid. Bei Ehepaaren wird das gemeinsame Einkommen herangezogen.</p>
+
+<h2>Rechenbeispiele</h2>
+
+<div class="ex">
+  <div class="lb">Beispiel 1: Einfamilienhaus mit Gasheizung</div>
+  <p><strong>Situation:</strong> EFH, Baujahr 1985, 130 m², Gasheizung (25 Jahre alt), Einkommen über 40.000 €</p>
+  <p><strong>Wärmepumpe:</strong> Luft-Wasser mit R290, Gesamtkosten ca. 26.000 €</p>
+  <p>Grundförderung 30 % + Effizienzbonus 5 % + Geschwindigkeitsbonus 20 % = <strong>55 %</strong></p>
+  <p>Förderung: 26.000 € × 55 % = <strong>14.300 €</strong></p>
+  <p>Eigenanteil: <span class="res">11.700 €</span></p>
+</div>
+
+<div class="ex">
+  <div class="lb">Beispiel 2: Maximale Förderung</div>
+  <p><strong>Situation:</strong> EFH, Ölheizung, Einkommen unter 40.000 €</p>
+  <p><strong>Wärmepumpe:</strong> Erdwärme, Gesamtkosten ca. 38.000 €</p>
+  <p>30 % + 5 % + 20 % + 30 % = 85 %, <strong>gedeckelt auf 70 %</strong></p>
+  <p>Förderfähig: 30.000 € (Deckel greift)</p>
+  <p>Förderung: 30.000 € × 70 % = <strong>21.000 €</strong></p>
+  <p>Eigenanteil: <span class="res">17.000 €</span></p>
+</div>
+
+<div class="cta-box">
+  <p>Jede Situation ist anders. Berechnen Sie Ihre persönliche Förderung mit unserem kostenlosen Rechner.</p>
+  <a href="/rechner" class="cta-btn">Meine Förderung berechnen →</a>
+</div>
+
+<h2>Förderfähige Kosten: Was zählt dazu?</h2>
+<p>Die förderfähigen Kosten umfassen nicht nur das Gerät, sondern auch alle notwendigen Arbeiten: Anschaffung und Installation, Entsorgung der alten Heizung, Anpassungen am Heizungssystem (z.B. hydraulischer Abgleich), Erdarbeiten bei Erdwärmepumpen, Elektroinstallation und Inbetriebnahme.</p>
+<p>Der Höchstbetrag liegt bei <strong>30.000 € für die erste Wohneinheit</strong>. Für jede weitere steigt der Betrag: um 15.000 € für die zweite bis sechste und um 8.000 € ab der siebten Wohneinheit.</p>
+
+<h2>So beantragen Sie die Förderung</h2>
+<p><strong>Schritt 1:</strong> Angebot von einem Fachbetrieb einholen. Noch keinen Vertrag unterschreiben. Eine Auftragserteilung vor Antragstellung kann die Förderung gefährden.</p>
+<p><strong>Schritt 2:</strong> Förderantrag im KfW-Zuschussportal stellen. Sie benötigen das Angebot, eine Bestätigung zum Antrag (BzA) vom Fachbetrieb und ggf. Ihren letzten Steuerbescheid.</p>
+<p><strong>Schritt 3:</strong> Nach Erhalt der Förderzusage den Auftrag erteilen und die Maßnahme durchführen lassen.</p>
+<p><strong>Schritt 4:</strong> Nach Installation die Rechnungen im KfW-Portal einreichen. Auszahlung erfolgt in der Regel innerhalb weniger Wochen.</p>
+
+<div class="ib"><p><strong>Tipp:</strong> Die Bearbeitungszeit beim KfW beträgt aktuell ca. 4 bis 8 Wochen. Planen Sie diesen Zeitraum ein, bevor Sie einen Installationstermin vereinbaren.</p></div>
+
+<h2>Lohnt sich eine Wärmepumpe 2026 finanziell?</h2>
+<p><strong>Sinkende Heizkosten:</strong> Eine Wärmepumpe verbraucht für die gleiche Heizleistung rund 50 bis 60 % weniger Energie als eine Gasheizung. Bei einem durchschnittlichen EFH bedeutet das eine jährliche Ersparnis von 1.000 bis 1.800 €.</p>
+<p><strong>Steigende fossile Kosten:</strong> Der CO₂-Preis liegt 2026 bei 55 bis 65 € pro Tonne und steigt weiter. Ab 2027 kommt der europäische Emissionshandel ETS 2 für Gebäude dazu. Gas und Öl werden strukturell teurer.</p>
+<p><strong>Wertsteigerung:</strong> Gebäude mit moderner Heiztechnik und gutem Energieausweis erzielen höhere Verkaufspreise.</p>
+<p>Über 15 Jahre summiert sich die Ersparnis typischerweise auf <strong>15.000 bis 25.000 €</strong>.</p>
+
+<h2>Häufige Fragen</h2>
+
+<div class="fq"><h3>Kann ich die Förderung als Vermieter beantragen?</h3><p>Ja. Eigentümer von vermieteten Wohngebäuden können die BEG-Förderung beantragen. Der Einkommensbonus steht allerdings nur selbstnutzenden Eigentümern zu.</p></div>
+
+<div class="fq"><h3>Was passiert bei Gesamtkosten über 30.000 €?</h3><p>Der Fördersatz wird nur auf die ersten 30.000 € angewendet. Kosten darüber tragen Sie selbst.</p></div>
+
+<div class="fq"><h3>Ist die Förderung mit anderen Programmen kombinierbar?</h3><p>Nicht mit dem Steuerbonus (§ 35c EStG). Eine Kombination mit KfW-Ergänzungskrediten ist möglich. Kommunale Programme können teilweise zusätzlich genutzt werden.</p></div>
+
+<div class="fq"><h3>Wie lange dauert die Installation?</h3><p>Luft-Wasser-WP: 2 bis 5 Tage. Erdwärme: 1 bis 3 Wochen (inkl. Bohrarbeiten). Lieferzeit aktuell ca. 4 bis 8 Wochen.</p></div>
+
+<div class="fq"><h3>Ändert sich die Förderung noch 2026?</h3><p>Die BEG-Förderung ist im Bundeshaushalt 2026 gesichert. Der Geschwindigkeitsbonus sinkt planmäßig erst ab 2029.</p></div>
+
+<div class="cta-box" style="margin-top:32px">
+  <p>Finden Sie in 2 Minuten heraus, wie viel Förderung Sie erhalten.</p>
+  <a href="/rechner" class="cta-btn">Kostenlos Förderung berechnen →</a>
+</div>
+
+</article>
+</div>
+<footer><span class="accent" style="font-weight:600">Wärme</span>Wechsel · Ihr Weg zur Wärmepumpe<br>© 2026 · Alle Angaben ohne Gewähr. Stand: April 2026.</footer>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Wie hoch ist die Förderung für eine Wärmepumpe 2026?","acceptedAnswer":{"@type":"Answer","text":"Die BEG-Förderung beträgt 2026 zwischen 30 % und maximal 70 % der förderfähigen Kosten (max. 30.000 €). Das ergibt bis zu 21.000 € Zuschuss."}},{"@type":"Question","name":"Wer bekommt den Einkommensbonus von 30 %?","acceptedAnswer":{"@type":"Answer","text":"Selbstnutzende Eigentümer mit einem zu versteuernden Haushaltseinkommen unter 40.000 € pro Jahr."}},{"@type":"Question","name":"Kann ich die Förderung als Vermieter beantragen?","acceptedAnswer":{"@type":"Answer","text":"Ja, auch Vermieter können die BEG-Förderung beantragen. Der Einkommensbonus steht allerdings nur selbstnutzenden Eigentümern zu."}}]}</script>
+</body>
+</html>
