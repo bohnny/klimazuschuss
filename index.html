@@ -12,18 +12,136 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://klimazuschuss.de" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♨</text></svg>" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18061857220"></script>
+    
+    <!-- Google Consent Mode v2: Default DENIED until user accepts -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'AW-18061857220');
-      gtag('config', 'G-P5XL61RKD');
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'denied'
+      });
     </script>
+
+    <!-- Cookie Consent Logic -->
+    <script>
+      function kzLoadTracking() {
+        var s = document.createElement('script');
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18061857220';
+        s.async = true;
+        document.head.appendChild(s);
+        gtag('js', new Date());
+        gtag('consent', 'update', {
+          'ad_storage': 'granted',
+          'ad_user_data': 'granted',
+          'ad_personalization': 'granted',
+          'analytics_storage': 'granted'
+        });
+        gtag('config', 'AW-18061857220');
+        gtag('config', 'G-P5XL61RKD');
+      }
+
+      function kzAcceptCookies() {
+        localStorage.setItem('kz_consent', 'granted');
+        localStorage.setItem('kz_consent_date', new Date().toISOString());
+        kzLoadTracking();
+        document.getElementById('kz-cookie-banner').style.display = 'none';
+      }
+
+      function kzDeclineCookies() {
+        localStorage.setItem('kz_consent', 'denied');
+        localStorage.setItem('kz_consent_date', new Date().toISOString());
+        document.getElementById('kz-cookie-banner').style.display = 'none';
+      }
+
+      function kzResetCookies() {
+        localStorage.removeItem('kz_consent');
+        localStorage.removeItem('kz_consent_date');
+        document.getElementById('kz-cookie-banner').style.display = 'flex';
+      }
+
+      // Check previous consent on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        var consent = localStorage.getItem('kz_consent');
+        if (consent === 'granted') {
+          kzLoadTracking();
+        } else if (consent !== 'denied') {
+          // No choice yet: show banner
+          document.getElementById('kz-cookie-banner').style.display = 'flex';
+        }
+      });
+    </script>
+
+    <style>
+      #kz-cookie-banner {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        background: #fff;
+        border-top: 1px solid rgba(0,0,0,.1);
+        box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        font-family: 'Outfit', -apple-system, sans-serif;
+      }
+      #kz-cookie-banner .kz-cb-text {
+        font-size: 13px;
+        color: #1A1D1C;
+        line-height: 1.5;
+        text-align: center;
+        max-width: 600px;
+      }
+      #kz-cookie-banner .kz-cb-text a {
+        color: #1A8F55;
+        text-decoration: none;
+      }
+      #kz-cookie-banner .kz-cb-buttons {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        max-width: 400px;
+      }
+      #kz-cookie-banner .kz-cb-btn {
+        flex: 1;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'Outfit', sans-serif;
+        border: none;
+      }
+      #kz-cookie-banner .kz-cb-accept {
+        background: #1A8F55;
+        color: #fff;
+      }
+      #kz-cookie-banner .kz-cb-decline {
+        background: #f0f0ee;
+        color: #1A1D1C;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Cookie Consent Banner -->
+    <div id="kz-cookie-banner">
+      <div class="kz-cb-text">
+        Wir verwenden Cookies für Analyse (Google Analytics) und Werbung (Google Ads), um unsere Website zu verbessern. 
+        <a href="/datenschutz.html">Datenschutzerklärung</a>
+      </div>
+      <div class="kz-cb-buttons">
+        <button class="kz-cb-btn kz-cb-decline" onclick="kzDeclineCookies()">Ablehnen</button>
+        <button class="kz-cb-btn kz-cb-accept" onclick="kzAcceptCookies()">Akzeptieren</button>
+      </div>
+    </div>
   </body>
 </html>
