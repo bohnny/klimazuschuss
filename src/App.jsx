@@ -192,7 +192,7 @@ export default function App() {
 
   return (
     <div className="kz-root" style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'Outfit',-apple-system,sans-serif" }}>
-      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.bunny.net/css2?family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
       <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
         @media(min-width:768px){.kz-root{font-size:17px !important}.kz-hero-title{font-size:40px !important}.kz-step-title{font-size:24px !important}.kz-big-number{font-size:52px !important}.kz-container{max-width:540px !important}}`}</style>
 
@@ -381,7 +381,8 @@ export default function App() {
       <div style={{ marginTop: 44, padding: 18, borderTop: `1px solid ${C.border}`, textAlign: "center", fontSize: 12, color: C.dim }}>
         <span style={{ color: C.primary, fontWeight: 600 }}>Klima</span>Zuschuss · Ihr Weg zur klimafreundlichen Heizung<br />
         <a href="/impressum.html" style={{ color: C.dim, textDecoration: "none", marginRight: 12 }}>Impressum</a>
-        <a href="/datenschutz.html" style={{ color: C.dim, textDecoration: "none" }}>Datenschutz</a><br />
+        <a href="/datenschutz.html" style={{ color: C.dim, textDecoration: "none", marginRight: 12 }}>Datenschutz</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); if(window.kzResetCookies) window.kzResetCookies(); }} style={{ color: C.dim, textDecoration: "none" }}>Cookie-Einstellungen</a><br />
         © 2026 klimazuschuss.de
       </div>
     </div>
