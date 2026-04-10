@@ -306,9 +306,9 @@ export default function App() {
             <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>{res.w.grund}</div>
           </div>
 
-          {/* Big Number - BLURRED or REVEALED */}
+          {/* Big Number - BLURRED or REVEALED (teaser at top) */}
           <div style={{ textAlign: "center", marginBottom: 16 }}>
-            <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 4 }}>Ihr geschätzter Zuschuss</div>
+            <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6, fontWeight: 700, letterSpacing: .2 }}>Ihr geschätzter Zuschuss</div>
             {revealed ? (
               <div className="kz-big-number" style={{ fontSize: 44, fontWeight: 800, color: C.accent, lineHeight: 1.1, animation: "fadeUp .5s ease both" }}>{fmt(res.foerd)} €</div>
             ) : (
@@ -320,21 +320,11 @@ export default function App() {
             {revealed && <div style={{ fontSize: 14.5, color: C.muted, marginTop: 3 }}>{res.pct}% der förderfähigen Kosten</div>}
           </div>
 
-          {/* Aufschlüsselung - ALWAYS VISIBLE as teaser */}
-          <div style={{ background: C.card, borderRadius: 13, padding: "16px 14px", marginBottom: 16 }}>
-            <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 12 }}>Ihre Förder-Bausteine</div>
-            <ABar label="Grundförderung" pct={res.gr} color={C.primary} delay={150} />
-            <ABar label="Effizienzbonus" pct={res.ef} color={C.accent} delay={300} />
-            <ABar label="Tempo-Bonus" pct={res.gs} color="#E8720C" delay={450} />
-            <ABar label="Einkommensbonus" pct={res.ei} color="#3B82F6" delay={600} />
-            <div style={{ textAlign: "right", fontSize: 13, fontWeight: 700, color: C.primary, marginTop: 6 }}>Gesamt: {res.pct}%</div>
-          </div>
-
           {/* FORM - gate to reveal result */}
           {!revealed && (
             <div style={{ animation: "fadeUp .3s ease both", marginBottom: 18, background: `linear-gradient(135deg,rgba(196,146,42,.06),rgba(196,146,42,.02))`, border: `1px solid rgba(196,146,42,.15)`, borderRadius: 13, padding: 18 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, textAlign: "center" }}>Ihre Berechnung ist fertig</div>
-              <div style={{ fontSize: 13, color: C.muted, marginBottom: 16, lineHeight: 1.5, textAlign: "center" }}>Tragen Sie Ihre Daten ein, um Ihr persönliches Ergebnis zu sehen. Ein Fachberater aus Ihrer Region meldet sich anschließend bei Ihnen.</div>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, textAlign: "center" }}>Ihre Berechnung ist fertig ✓</div>
+              <div style={{ fontSize: 14, color: C.text, marginBottom: 14, lineHeight: 1.5, textAlign: "center", fontWeight: 600 }}>Tragen Sie Ihre Daten ein und sehen Sie Ihren persönlichen Zuschuss direkt im Anschluss.</div>
               <div style={{ marginBottom: 8 }}>
                 <input placeholder="Vor- und Nachname *" value={form.name} onChange={e => { setForm({ ...form, name: e.target.value }); setFormErrors(p => ({...p, name: undefined})); }} style={{ ...INP, borderColor: formErrors.name ? "#D94040" : C.border }} />
                 {formErrors.name && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.name}</div>}
@@ -353,13 +343,23 @@ export default function App() {
               </div>
               <button onClick={async () => { if (validateForm()) { setSending(true); await submitLead(form, d, email); trackConversion(); trackEvent('lead_submitted', { plz: form.plz }); setSending(false); setRevealed(true); } }} style={{
                 width: "100%", padding: 16, borderRadius: 10, cursor: "pointer",
-                background: `linear-gradient(135deg,${C.accent},#B8862A)`,
+                background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`,
                 border: "none", color: "#fff", fontSize: 15, fontWeight: 700, fontFamily: "'Outfit'",
-                boxShadow: "0 4px 16px rgba(196,146,42,.2)",
+                boxShadow: "0 4px 16px rgba(26,143,85,.25)",
               }}>{sending ? "Wird berechnet..." : "Ergebnis anzeigen"}</button>
-              <div style={{ fontSize: 11, color: C.dim, marginTop: 8, textAlign: "center" }}>Kostenlos und unverbindlich. Kein Spam.</div>
+              <div style={{ fontSize: 11, color: C.dim, marginTop: 8, textAlign: "center", lineHeight: 1.5 }}>Kostenlos und unverbindlich. Kein Spam. Ein Fachberater meldet sich kurz bei Ihnen.</div>
             </div>
           )}
+
+          {/* Aufschlüsselung - ALWAYS VISIBLE as teaser */}
+          <div style={{ background: C.card, borderRadius: 13, padding: "16px 14px", marginBottom: 16 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 12 }}>Ihre Förder-Bausteine</div>
+            <ABar label="Grundförderung" pct={res.gr} color={C.primary} delay={150} />
+            <ABar label="Effizienzbonus" pct={res.ef} color={C.accent} delay={300} />
+            <ABar label="Tempo-Bonus" pct={res.gs} color="#E8720C" delay={450} />
+            <ABar label="Einkommensbonus" pct={res.ei} color="#3B82F6" delay={600} />
+            <div style={{ textAlign: "right", fontSize: 13, fontWeight: 700, color: C.primary, marginTop: 6 }}>Gesamt: {res.pct}%</div>
+          </div>
 
           {/* SUCCESS - shown after reveal */}
           {revealed && (
