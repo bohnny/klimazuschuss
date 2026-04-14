@@ -209,7 +209,7 @@ export default function App() {
   };
   const prevStep = () => { setStep(step - 1); setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50); };
   const reset = () => { setStep(0); setD({ flaeche: 120 }); setRes(null); setRevealed(false); setSending(false); setFormErrors({}); setEmail(""); setForm({ name: "", tel: "", plz: "" }); setGateStep(1); };
-  const start = () => { setStep(0); trackEvent('funnel_start'); setTimeout(() => ref.current?.scrollIntoView({ behavior: "smooth" }), 80); };
+  const start = () => { setStep(0); trackEvent('funnel_start'); setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50); };
 
   return (
     <div className="kz-root" style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'Outfit',-apple-system,sans-serif" }}>
