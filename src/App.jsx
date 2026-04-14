@@ -341,64 +341,39 @@ export default function App() {
             {revealed && <div style={{ fontSize: 14.5, color: C.muted, marginTop: 3 }}>{res.pct}% der förderfähigen Kosten</div>}
           </div>
 
-          {/* ══════════ GATE 1: Name + PLZ ══════════ */}
-          {!revealed && gateStep === 1 && (
+          {/* ══════════ SINGLE FORM — all 4 fields with micro-copy ══════════ */}
+          {!revealed && (
             <div style={{ animation: "fadeUp .3s ease both", marginBottom: 18, background: `linear-gradient(135deg,rgba(196,146,42,.06),rgba(196,146,42,.02))`, border: `1px solid rgba(196,146,42,.15)`, borderRadius: 13, padding: 18 }}>
-              <div style={{ fontSize: 11, color: C.primary, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 600, textAlign: "center", marginBottom: 6 }}>Schritt 1 von 2</div>
               <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, textAlign: "center" }}>Ihre Berechnung ist fertig ✓</div>
-              <div style={{ fontSize: 13.5, color: C.muted, marginBottom: 14, lineHeight: 1.5, textAlign: "center" }}>Wohin soll Ihr persönlicher Zuschuss berechnet werden?</div>
+              <div style={{ fontSize: 13.5, color: C.muted, marginBottom: 14, lineHeight: 1.5, textAlign: "center" }}>Tragen Sie Ihre Daten ein und sehen Sie Ihren persönlichen Zuschuss direkt im Anschluss.</div>
 
-              <div style={{ marginBottom: 8 }}>
+              <div style={{ marginBottom: 10 }}>
                 <input placeholder="Vor- und Nachname *" value={form.name} onChange={e => { setForm({ ...form, name: e.target.value }); setFormErrors(p => ({...p, name: undefined})); }} style={{ ...INP, borderColor: formErrors.name ? "#D94040" : C.border }} />
                 {formErrors.name && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.name}</div>}
               </div>
-              <div style={{ marginBottom: 12 }}>
-                <input placeholder="Postleitzahl *" inputMode="numeric" value={form.plz} onChange={e => { setForm({ ...form, plz: e.target.value }); setFormErrors(p => ({...p, plz: undefined})); }} style={{ ...INP, borderColor: formErrors.plz ? "#D94040" : C.border }} />
-                {formErrors.plz && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.plz}</div>}
-                <div style={{ fontSize: 11, color: C.dim, marginTop: 4 }}>Für die regionale Förderprüfung (NRW, Hessen u. a.)</div>
-              </div>
-
-              <button onClick={() => {
-                trackEvent('gate1_attempt', { hasName: !!form.name.trim(), hasPlz: !!form.plz.trim() });
-                if (validateGate1()) {
-                  trackEvent('gate1_submitted', { plz: form.plz });
-                  setGateStep(2);
-                  setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50);
-                }
-              }} style={{
-                width: "100%", padding: 16, borderRadius: 10, cursor: "pointer",
-                background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`,
-                border: "none", color: "#fff", fontSize: 15, fontWeight: 700, fontFamily: "'Outfit'",
-                boxShadow: "0 4px 16px rgba(26,143,85,.25)",
-              }}>Weiter zum Ergebnis →</button>
-              <div style={{ fontSize: 11, color: C.dim, marginTop: 8, textAlign: "center", lineHeight: 1.5 }}>Kostenlos & unverbindlich. Keine Zahlungsdaten nötig.</div>
-            </div>
-          )}
-
-          {/* ══════════ GATE 2: Tel + Email ══════════ */}
-          {!revealed && gateStep === 2 && (
-            <div style={{ animation: "fadeUp .3s ease both", marginBottom: 18, background: `linear-gradient(135deg,rgba(196,146,42,.06),rgba(196,146,42,.02))`, border: `1px solid rgba(196,146,42,.15)`, borderRadius: 13, padding: 18 }}>
-              <div style={{ fontSize: 11, color: C.primary, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 600, textAlign: "center", marginBottom: 6 }}>Schritt 2 von 2</div>
-              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, textAlign: "center" }}>Fast geschafft, {form.name.split(" ")[0]} 🎉</div>
-              <div style={{ fontSize: 13.5, color: C.muted, marginBottom: 14, lineHeight: 1.5, textAlign: "center" }}>Wohin dürfen wir Ihr persönliches Ergebnis senden?</div>
-
-              <div style={{ marginBottom: 8 }}>
+              <div style={{ marginBottom: 10 }}>
                 <input placeholder="Telefonnummer *" type="tel" inputMode="tel" value={form.tel} onChange={e => { setForm({ ...form, tel: e.target.value }); setFormErrors(p => ({...p, tel: undefined})); }} style={{ ...INP, borderColor: formErrors.tel ? "#D94040" : C.border }} />
                 {formErrors.tel && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.tel}</div>}
                 <div style={{ fontSize: 11, color: C.dim, marginTop: 4 }}>Für die kostenlose Beratung durch Ihren Fachberater.</div>
               </div>
-              <div style={{ marginBottom: 12 }}>
+              <div style={{ marginBottom: 10 }}>
                 <input type="email" inputMode="email" placeholder="E-Mail-Adresse *" value={email} onChange={e => { setEmail(e.target.value); setFormErrors(p => ({...p, email: undefined})); }} style={{ ...INP, borderColor: formErrors.email ? "#D94040" : C.border }} />
                 {formErrors.email && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.email}</div>}
                 <div style={{ fontSize: 11, color: C.dim, marginTop: 4 }}>Wir senden Ihnen Ihr Ergebnis zusätzlich per E-Mail.</div>
               </div>
+              <div style={{ marginBottom: 12 }}>
+                <input placeholder="Postleitzahl *" inputMode="numeric" value={form.plz} onChange={e => { setForm({ ...form, plz: e.target.value }); setFormErrors(p => ({...p, plz: undefined})); }} style={{ ...INP, borderColor: formErrors.plz ? "#D94040" : C.border }} />
+                {formErrors.plz && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.plz}</div>}
+                <div style={{ fontSize: 11, color: C.dim, marginTop: 4 }}>Für die regionale Förderprüfung.</div>
+              </div>
 
               <button onClick={async () => {
-                trackEvent('gate2_attempt', { hasTel: !!form.tel.trim(), hasEmail: !!email.trim() });
-                if (validateGate2()) {
+                trackEvent('gate1_attempt', { hasName: !!form.name.trim(), hasTel: !!form.tel.trim(), hasEmail: !!email.trim(), hasPlz: !!form.plz.trim() });
+                if (validateForm()) {
                   setSending(true);
                   await submitLead(form, d, email);
                   trackConversion();
+                  trackEvent('gate1_submitted', { plz: form.plz });
                   trackEvent('lead_submitted', { plz: form.plz });
                   setSending(false);
                   setRevealed(true);
@@ -409,12 +384,8 @@ export default function App() {
                 background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`,
                 border: "none", color: "#fff", fontSize: 15, fontWeight: 700, fontFamily: "'Outfit'",
                 boxShadow: "0 4px 16px rgba(26,143,85,.25)",
-              }}>{sending ? "Wird geladen..." : "Vollständiges Ergebnis anzeigen →"}</button>
-
-              <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
-                <button onClick={() => { trackEvent('gate2_back'); setGateStep(1); setFormErrors({}); }} style={{ background: "none", border: "none", color: C.dim, fontSize: 12, cursor: "pointer", textDecoration: "underline", fontFamily: "'Outfit'" }}>← Zurück</button>
-              </div>
-              <div style={{ fontSize: 11, color: C.dim, marginTop: 8, textAlign: "center", lineHeight: 1.5 }}>🔒 Ihre Daten werden verschlüsselt übertragen. Keine Werbeanrufe.</div>
+              }}>{sending ? "Wird geladen..." : "Ergebnis anzeigen"}</button>
+              <div style={{ fontSize: 11, color: C.dim, marginTop: 10, textAlign: "center", lineHeight: 1.6 }}>🔒 Kostenlos & unverbindlich. Keine Werbeanrufe.<br/>Ihre Daten werden verschlüsselt übertragen.</div>
             </div>
           )}
 
