@@ -204,10 +204,10 @@ export default function App() {
     return false;
   };
   const nextStep = () => {
-    if (step < 4) { setStep(step + 1); trackEvent('funnel_step', { step: ['gebaeude','baujahr','wohnflaeche','heizung'][step] || step }); setTimeout(() => ref.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); return; }
-    if (step === 4) { const r = calc(d); setRes(r); if(r) { d._wpLabel = r.w.label; d._foerd = r.foerd; d._pct = r.pct; d._eig = r.eig; d._jE = r.jE; } setStep(5); trackEvent('funnel_result', { foerderung: r?.foerd, prozent: r?.pct }); setTimeout(() => ref.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); }
+    if (step < 4) { setStep(step + 1); trackEvent('funnel_step', { step: ['gebaeude','baujahr','wohnflaeche','heizung'][step] || step }); setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50); return; }
+    if (step === 4) { const r = calc(d); setRes(r); if(r) { d._wpLabel = r.w.label; d._foerd = r.foerd; d._pct = r.pct; d._eig = r.eig; d._jE = r.jE; } setStep(5); trackEvent('funnel_result', { foerderung: r?.foerd, prozent: r?.pct }); setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50); }
   };
-  const prevStep = () => { setStep(step - 1); setTimeout(() => ref.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); };
+  const prevStep = () => { setStep(step - 1); setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50); };
   const reset = () => { setStep(0); setD({ flaeche: 120 }); setRes(null); setRevealed(false); setSending(false); setFormErrors({}); setEmail(""); setForm({ name: "", tel: "", plz: "" }); setGateStep(1); };
   const start = () => { setStep(0); trackEvent('funnel_start'); setTimeout(() => ref.current?.scrollIntoView({ behavior: "smooth" }), 80); };
 
