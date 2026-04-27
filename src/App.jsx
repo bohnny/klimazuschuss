@@ -118,6 +118,15 @@ function getLeadSource() {
   } catch(e) { return 'direkt'; }
 }
 
+function getGclid() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const gclid = params.get('gclid');
+    if (gclid) sessionStorage.setItem('kz_gclid', gclid);
+    return sessionStorage.getItem('kz_gclid') || '';
+  } catch(e) { return ''; }
+}
+
 /* ═══════════════════════════════════════════ BACKEND ═══════════════════════════════════════════ */
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxpvPZDjuJWmY9BCnVSUJh6I7Cwig0uRYvd0PBSRdfYBIny4IPw8fyvlOzv4AgcGgsa6w/exec";
 
@@ -139,6 +148,7 @@ async function submitLead(formData, calcData, emailAddr) {
       eigenanteil: calcData._eig || '',
       jahresersparnis: calcData._jE || '',
       quelle: getLeadSource(),
+      gclid: getGclid(),
     });
     await fetch(SHEETS_URL + "?" + params.toString(), { mode: "no-cors" });
     return true;
