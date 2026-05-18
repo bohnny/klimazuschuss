@@ -461,7 +461,7 @@ export default function App() {
       )}
 
       {/* ══════════ GUT ZU WISSEN — Blog/Ratgeber Sektion ══════════ */}
-      <div style={{ marginTop: 36, padding: "0 4px" }}>
+      <div style={{ marginTop: 36, padding: "0 4px", maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
           <span style={{ fontSize: 16 }}>💡</span>
           <span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Gut zu wissen</span>
