@@ -1,210 +1,471 @@
-function doGet(e) {
+import { useState, useEffect, useRef } from "react";
+
+/* ═══════════════════════════════════════════ DATA ═══════════════════════════════════════════ */
+const GEBAEUDE = [
+  { value: "efh", label: "Einfamilienhaus", desc: "Freistehend", icon: "🏡" },
+  { value: "dhh", label: "Doppelhaushälfte", desc: "Reihen- oder Doppelhaus", icon: "🏘️" },
+  { value: "rh", label: "Reihenhaus", desc: "Mittel- oder Eckhaus", icon: "🏠" },
+  { value: "mfh", label: "Mehrfamilienhaus", desc: "Bis 6 Wohneinheiten", icon: "🏢" },
+];
+const BAUJAHR = [
+  { value: "vor1960", label: "Vor 1960", desc: "Altbau, oft ungedämmt", factor: 1.3 },
+  { value: "1960-1978", label: "1960 – 1978", desc: "Erste Wärmeschutzverordnung", factor: 1.15 },
+  { value: "1979-1994", label: "1979 – 1994", desc: "Verbesserte Dämmung", factor: 1.0 },
+  { value: "1995-2009", label: "1995 – 2009", desc: "EnEV-Standards", factor: 0.9 },
+  { value: "nach2009", label: "Nach 2009", desc: "Moderne Baustandards", factor: 0.8 },
+];
+const HEIZUNG = [
+  { value: "gas", label: "Gasheizung", desc: "Erdgas-Brennwert oder Niedertemperatur", gB: true, k: 2400 },
+  { value: "oel", label: "Ölheizung", desc: "Heizöl-Kessel", gB: true, k: 3000 },
+  { value: "nachtspeicher", label: "Nachtspeicherheizung", desc: "Elektrische Speicherheizung", gB: true, k: 3200 },
+  { value: "kohle", label: "Kohle oder Koks", desc: "Festbrennstoff-Heizung", gB: true, k: 2800 },
+  { value: "sonstige", label: "Andere / Weiß nicht", desc: "Fernwärme, Pellets oder unsicher", gB: false, k: 2200 },
+];
+const EINKOMMEN = [
+  { value: "unter40", label: "Unter 40.000 € / Jahr", desc: "Zu versteuerndes Haushaltseinkommen", bonus: true },
+  { value: "ueber40", label: "Über 40.000 € / Jahr", desc: "Zu versteuerndes Haushaltseinkommen", bonus: false },
+  { value: "unsicher", label: "Bin mir unsicher", desc: "Wird im Antrag geprüft", bonus: false },
+];
+const WP_LUFT = { label: "Luft-Wasser-Wärmepumpe (R290)", kurz: "Luft-Wasser", grund: "Die wirtschaftlichste und beliebteste Lösung für Ihr Gebäude. Einfache Installation, natürliches Kältemittel R290 für maximale Förderung. Inkl. Gerät, Installation, Entsorgung Altgerät und Förderantrag.", eB: true, kMin: 25000, kMax: 35000, jK: 950 };
+
+function calc(d) {
+  const h = HEIZUNG.find(x => x.value === d.heizung);
+  const b = BAUJAHR.find(x => x.value === d.baujahr);
+  const e = EINKOMMEN.find(x => x.value === d.einkommen);
+  if (!h || !b || !e) return null;
+  const w = WP_LUFT;
+  const ff = d.flaeche > 150 ? 1.15 : d.flaeche > 100 ? 1.0 : 0.9;
+  const kosten = Math.round(((w.kMin + w.kMax) / 2) * b.factor * ff);
+  const foerdF = Math.min(kosten, 30000);
+  const gr = 30, ef = w.eB ? 5 : 0;
+  // Geschwindigkeitsbonus: Öl/Nachtspeicher/Kohle = immer. Gas = nur wenn ≥20 Jahre alt UND Eigennutzer.
+  const gs = d.heizung === 'gas' ? (d.gasAlter === 'ueber20' && d.eigennutzer === 'ja' ? 20 : 0) : (h.gB ? 20 : 0);
+  const ei = e.bonus ? 30 : 0;
+  const pct = Math.min(gr + ef + gs + ei, 70);
+  const foerd = Math.round(foerdF * pct / 100);
+  const eig = kosten - foerd;
+  const jE = h.k - w.jK;
+  return { w, kosten, foerdF, gr, ef, gs, ei, pct, foerd, eig, jE, amor: Math.round(eig / jE * 10) / 10, altK: h.k, neuK: w.jK, co2: Math.round((h.k / .08) * .2 / 1000 * 10) / 10, e15: jE * 15 };
+}
+
+/* ═══════════════════════════════════════════ THEME ═══════════════════════════════════════════ */
+const C = {
+  bg: "#FAFAF8",
+  primary: "#1A8F55",
+  primaryDark: "#157A48",
+  accent: "#C4922A",
+  text: "#1A1D1C",
+  muted: "rgba(26,29,28,.65)",
+  dim: "rgba(26,29,28,.5)",
+  faint: "rgba(26,29,28,.35)",
+  card: "rgba(0,0,0,.03)",
+  border: "rgba(0,0,0,.1)",
+};
+
+/* ═══════════════════════════════════════════ COMPONENTS ═══════════════════════════════════════════ */
+const fmt = n => n?.toLocaleString("de-DE");
+
+const Card = ({ o, sel, onClick }) => (
+  <button onClick={onClick} style={{
+    display: "flex", alignItems: "center", gap: 12, width: "100%",
+    padding: "14px 16px", borderRadius: 11, cursor: "pointer", textAlign: "left",
+    border: sel ? `2px solid ${C.primary}` : `2px solid ${C.border}`,
+    background: sel ? "rgba(26,143,85,.06)" : C.card,
+    color: C.text, transition: "all .15s", fontFamily: "inherit",
+  }}>
+    {o.icon && <span style={{ fontSize: 24, flexShrink: 0 }}>{o.icon}</span>}
+    <div style={{ flex: 1 }}>
+      <div style={{ fontWeight: 600, fontSize: 14.5 }}>{o.label}</div>
+      <div style={{ fontSize: 12, color: C.muted, marginTop: 1 }}>{o.desc}</div>
+    </div>
+    {sel && <div style={{ width: 20, height: 20, borderRadius: "50%", background: C.primary, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#fff", flexShrink: 0 }}>✓</div>}
+  </button>
+);
+
+function ABar({ label, pct, color, delay }) {
+  const [w, setW] = useState(0);
+  useEffect(() => { const t = setTimeout(() => setW(pct), delay); return () => clearTimeout(t); }, [pct, delay]);
+  if (!pct) return null;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 7 }}>
+      <div style={{ width: 115, fontSize: 12, color: C.muted, flexShrink: 0 }}>{label}</div>
+      <div style={{ flex: 1, height: 24, background: "rgba(0,0,0,.04)", borderRadius: 5, overflow: "hidden" }}>
+        <div style={{ height: "100%", background: color, borderRadius: 5, width: `${(w / 70) * 100}%`, transition: "width .8s cubic-bezier(.25,.46,.45,.94)", display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 7 }}>
+          <span style={{ fontSize: 10.5, fontWeight: 700, color: "#fff" }}>{pct}%</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const INP = { width: "100%", padding: "12px 14px", borderRadius: 9, background: "#fff", border: `1px solid ${C.border}`, color: C.text, fontSize: 14, outline: "none", fontFamily: "'Outfit',sans-serif", boxSizing: "border-box" };
+
+/* ═══════════════════════════════════════════ TRACKING ═══════════════════════════════════════════ */
+const trackEvent = (eventName, params = {}) => {
+  try { if (window.gtag) window.gtag('event', eventName, params); } catch(e) {}
+};
+const trackConversion = () => {
+  try { if (window.gtag) window.gtag('event', 'conversion', { send_to: 'AW-18061857220/1n7LCNO3lZUcEMSjyKRD' }); } catch(e) {}
+};
+
+/* ═══════════════════════════════════════════ SOURCE DETECTION ═══════════════════════════════════════════ */
+function getLeadSource() {
   try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var params = e.parameter;
-    
-    // ──── DUPLIKAT-CHECK (gleiche E-Mail oder Telefon in letzten 24h) ────
-    var now = new Date();
-    var emailParam = (params.email || '').trim().toLowerCase();
-    var telParam = (params.telefon || '').replace(/\s/g, '');
-    
-    if (emailParam || telParam) {
-      var data = sheet.getDataRange().getValues();
-      for (var i = data.length - 1; i >= 1; i--) {
-        var rowDate = new Date(data[i][0]); // Spalte A = Datum
-        var diffHours = (now - rowDate) / (1000 * 60 * 60);
-        if (diffHours > 24) break; // Nur letzte 24h prüfen
-        
-        var rowEmail = (data[i][2] || '').toString().trim().toLowerCase(); // Spalte C
-        var rowTel = (data[i][3] || '').toString().replace(/\s/g, '');     // Spalte D
-        
-        if ((emailParam && rowEmail === emailParam) || (telParam && telParam.length > 5 && rowTel === telParam)) {
-          Logger.log("Duplikat erkannt: " + emailParam + " / " + telParam);
-          return ContentService.createTextOutput("OK"); // Stilles OK — User sieht Ergebnis, kein Doppeleintrag
-        }
-      }
-    }
-    
-    var timestamp = new Date().toLocaleString("de-DE", {timeZone: "Europe/Berlin"});
-    
-    // Zeile mit allen Daten (19 Spalten: A bis S)
-    var rowData = [
-      timestamp,                          // A: Datum
-      params.name || '',                  // B: Name
-      params.email || '',                 // C: E-Mail
-      params.telefon || '',               // D: Telefon
-      params.plz || '',                   // E: PLZ
-      params.gebaeude || '',              // F: Gebäudetyp
-      params.baujahr || '',               // G: Baujahr
-      params.flaeche || '',               // H: Wohnfläche
-      params.heizung || '',               // I: Aktuelle Heizung
-      params.einkommen || '',             // J: Einkommen
-      params.wp_empfehlung || '',         // K: WP-Empfehlung
-      params.foerderung_euro || '',       // L: Förderung (€)
-      params.foerderung_prozent || '',    // M: Förderung (%)
-      params.eigenanteil || '',           // N: Eigenanteil (€)
-      params.jahresersparnis || '',       // O: Jahresersparnis
-      params.quelle || 'direkt',          // P: Quelle
-      '',                                  // Q: Notizen
-      'Neu',                               // R: Status
-      params.gclid || ''                   // S: Google Click ID
-    ];
-    
-    sheet.appendRow(rowData);
-    
-    // ──── GOOGLE ADS OFFLINE CONVERSIONS (SEPARATES SHEET) ────
-    if (params.gclid && params.gclid.length > 5) {
-      try {
-        var convSS = SpreadsheetApp.openById('1uOa7S8hvDGhTzua2UVekvBfsHpWDQGxxPLpz-PjPKZU');
-        var convSheet = convSS.getSheets()[0];
-        
-        // Header setzen falls Sheet leer
-        if (convSheet.getLastRow() === 0) {
-          convSheet.appendRow([
-            'Google Click ID',
-            'Conversion Name',
-            'Conversion Time',
-            'Conversion Value',
-            'Conversion Currency'
-          ]);
-          convSheet.getRange(1, 1, 1, 5).setFontWeight('bold');
-        }
-        
-        // Conversion Time im Google Ads Format
-        var now = new Date();
-        var convTime = Utilities.formatDate(now, "Europe/Berlin", "yyyy-MM-dd HH:mm:ss+0200");
-        
-        convSheet.appendRow([
-          params.gclid,
-          'Qualifizierter Lead',
-          convTime,
-          '1',
-          'EUR'
-        ]);
-      } catch(convErr) {
-        Logger.log("Conversion Sheet Fehler: " + convErr);
-      }
-    }
-    
-    // ──── BESTÄTIGUNGSMAIL AN DEN LEAD ────
-    if (params.email && params.email.indexOf('@') > -1) {
-      try {
-        var foerderung = params.foerderung_euro || '---';
-        var prozent = params.foerderung_prozent || '---';
-        
-        var betreff = "Ihre Förderberechnung: " + foerderung + "€ Zuschuss möglich";
-        
-        var body = "Hallo " + (params.name || '') + ",\n\n"
-          + "vielen Dank für Ihre Anfrage über KlimaZuschuss.de!\n\n"
-          + "Ihre persönliche Förderberechnung:\n\n"
-          + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-          + "Geschätzter Zuschuss: " + foerderung + " €\n"
-          + "Fördersatz: " + prozent + "%\n"
-          + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-          + "So geht es jetzt weiter:\n\n"
-          + "1. Ein Fachberater aus Ihrer Region wird sich in Kürze "
-          + "telefonisch bei Ihnen melden.\n\n"
-          + "2. Gemeinsam besprechen Sie Ihre Situation und vereinbaren "
-          + "einen kostenlosen Termin bei Ihnen vor Ort.\n\n"
-          + "3. Der Berater prüft vor Ort, welche Lösung für Ihr Gebäude "
-          + "am besten geeignet ist und erstellt Ihnen ein individuelles "
-          + "Angebot. Die komplette Abwicklung des Förderantrags "
-          + "übernimmt der Fachbetrieb für Sie.\n\n"
-          + "Der Termin ist kostenlos und völlig unverbindlich. "
-          + "Sie gehen keinerlei Verpflichtung ein.\n\n"
-          + "Wichtig: Die aktuelle Förderung von bis zu 70% ist zeitlich "
-          + "begrenzt. Je früher Sie handeln, desto mehr sparen Sie.\n\n"
-          + "Sie haben Fragen? Antworten Sie einfach auf diese Mail.\n\n"
-          + "Beste Grüße\n"
-          + "Ihr KlimaZuschuss-Team\n\n"
-          + "---\n"
-          + "KlimaZuschuss | klimazuschuss.de\n"
-          + "E-Mail: team@klimazuschuss.de\n"
-          + "* Unverbindliche Schätzung auf Basis der BEG-Richtlinien 2026.";
-        
-        // Senden mit Alias-Versuch
-        var aliases = GmailApp.getAliases();
-        var useAlias = false;
-        for (var i = 0; i < aliases.length; i++) {
-          if (aliases[i] === 'team@klimazuschuss.de') {
-            useAlias = true;
-            break;
-          }
-        }
-        
-        if (useAlias) {
-          GmailApp.sendEmail(params.email, betreff, body, {
-            name: "KlimaZuschuss",
-            from: "team@klimazuschuss.de",
-            replyTo: "team@klimazuschuss.de"
-          });
-        } else {
-          GmailApp.sendEmail(params.email, betreff, body, {
-            name: "KlimaZuschuss",
-            replyTo: "team@klimazuschuss.de"
-          });
-          Logger.log("Alias team@klimazuschuss.de nicht gefunden. Verfügbare Aliases: " + aliases.join(", "));
-        }
-      } catch(mailErr) {
-        Logger.log("Mail an Lead fehlgeschlagen: " + mailErr);
-        // Fallback mit MailApp
-        try {
-          MailApp.sendEmail({
-            to: params.email,
-            subject: betreff,
-            body: body,
-            name: "KlimaZuschuss",
-            replyTo: "team@klimazuschuss.de"
-          });
-        } catch(fallbackErr) {
-          Logger.log("Auch Fallback fehlgeschlagen: " + fallbackErr);
-        }
-      }
-    }
-    
-    // ──── BENACHRICHTIGUNG AN DICH ────
-    try {
-      var quelle = params.quelle || 'direkt';
-      var notifySubject = "Neuer Lead (" + quelle + "): " + (params.name || 'Unbekannt') + " (" + (params.plz || '') + ")";
-      
-      var notifyBody = "NEUER LEAD über KlimaZuschuss.de\n"
-        + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        + "Quelle: " + quelle.toUpperCase() + "\n\n"
-        + "Name: " + (params.name || '-') + "\n"
-        + "Telefon: " + (params.telefon || '-') + "\n"
-        + "E-Mail: " + (params.email || '-') + "\n"
-        + "PLZ: " + (params.plz || '-') + "\n\n"
-        + "Gebäude: " + (params.gebaeude || '-') + "\n"
-        + "Baujahr: " + (params.baujahr || '-') + "\n"
-        + "Fläche: " + (params.flaeche || '-') + " m²\n"
-        + "Heizung: " + (params.heizung || '-') + "\n"
-        + "Einkommen: " + (params.einkommen || '-') + "\n\n"
-        + "Empfehlung: " + (params.wp_empfehlung || '-') + "\n"
-        + "Förderung: " + (params.foerderung_euro || '-') + "€ (" + (params.foerderung_prozent || '-') + "%)\n\n"
-        + "Zeitpunkt: " + timestamp + "\n\n"
-        + "→ BITTE INNERHALB 1 STUNDE KONTAKTIEREN";
-      
-      MailApp.sendEmail({
-        to: "team@klimazuschuss.de",
-        subject: notifySubject,
-        body: notifyBody,
-        name: "KlimaZuschuss System"
-      });
-      MailApp.sendEmail({
-        to: "n.scheffler@360volt.de",
-        subject: notifySubject,
-        body: notifyBody,
-        name: "KlimaZuschuss System"
-      });
-      
-    } catch(notifyErr) {
-      Logger.log("Benachrichtigung fehlgeschlagen: " + notifyErr);
-    }
-    
-    return ContentService.createTextOutput("OK");
-    
-  } catch(err) {
-    Logger.log("Fehler: " + err);
-    return ContentService.createTextOutput("ERROR");
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('utm_source')) return params.get('utm_source');
+    if (params.get('gclid')) return 'google';
+    if (params.get('fbclid')) return 'facebook';
+    if (document.referrer.includes('google')) return 'google_organic';
+    if (document.referrer.includes('facebook') || document.referrer.includes('fb.com')) return 'facebook';
+    return 'direkt';
+  } catch(e) { return 'direkt'; }
+}
+
+function getGclid() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const gclid = params.get('gclid');
+    if (gclid) sessionStorage.setItem('kz_gclid', gclid);
+    return sessionStorage.getItem('kz_gclid') || '';
+  } catch(e) { return ''; }
+}
+
+/* ═══════════════════════════════════════════ BACKEND ═══════════════════════════════════════════ */
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxpvPZDjuJWmY9BCnVSUJh6I7Cwig0uRYvd0PBSRdfYBIny4IPw8fyvlOzv4AgcGgsa6w/exec";
+
+async function submitLead(formData, calcData, emailAddr) {
+  try {
+    const params = new URLSearchParams({
+      name: formData.name || '',
+      email: emailAddr || '',
+      telefon: formData.tel || '',
+      plz: formData.plz || '',
+      gebaeude: calcData.gebaeude || '',
+      baujahr: calcData.baujahr || '',
+      flaeche: calcData.flaeche || '',
+      heizung: calcData.heizung || '',
+      einkommen: calcData.einkommen || '',
+      wp_empfehlung: calcData._wpLabel || '',
+      foerderung_euro: calcData._foerd || '',
+      foerderung_prozent: calcData._pct || '',
+      eigenanteil: calcData._eig || '',
+      jahresersparnis: calcData._jE || '',
+      quelle: getLeadSource(),
+      gclid: getGclid(),
+    });
+    await fetch(SHEETS_URL + "?" + params.toString(), { mode: "no-cors" });
+    return true;
+  } catch (err) {
+    console.error("Lead submit error:", err);
+    return false;
   }
+}
+
+/* ═══════════════════════════════════════════ MAIN ═══════════════════════════════════════════ */
+export default function App() {
+  const [step, setStep] = useState(-1);
+  const [d, setD] = useState({ flaeche: 120 });
+  const [res, setRes] = useState(null);
+  const [email, setEmail] = useState("");
+  const [revealed, setRevealed] = useState(false);
+  const [form, setForm] = useState({ name: "", tel: "", plz: "" });
+  const [sending, setSending] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [gateStep, setGateStep] = useState(1); // 1 = Name+PLZ, 2 = Tel+Email
+  const ref = useRef(null);
+
+  const goHome = () => { setStep(-1); setD({ flaeche: 120 }); setRes(null); setRevealed(false); setSending(false); setFormErrors({}); setEmail(""); setForm({ name: "", tel: "", plz: "" }); setGateStep(1); window.scrollTo({ top: 0, behavior: "smooth" }); };
+
+  // Gate 1: validate Name + PLZ only
+  const validateGate1 = () => {
+    const errs = {};
+    if (!form.name.trim()) errs.name = "Bitte Name eingeben";
+    if (!form.plz.trim()) errs.plz = "Bitte PLZ eingeben";
+    else if (!/^\d{5}$/.test(form.plz.trim())) errs.plz = "Bitte gültige 5-stellige PLZ";
+    setFormErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  // Gate 2: validate Tel + Email only
+  const validateGate2 = () => {
+    const errs = {};
+    if (!form.tel.trim()) errs.tel = "Bitte Telefonnummer eingeben";
+    if (!email.trim()) errs.email = "Bitte E-Mail eingeben";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = "Bitte gültige E-Mail eingeben";
+    setFormErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const validateForm = () => {
+    const errs = {};
+    if (!form.name.trim()) errs.name = "Bitte Name eingeben";
+    if (!form.tel.trim()) errs.tel = "Bitte Telefonnummer eingeben";
+    if (!email.trim()) errs.email = "Bitte E-Mail eingeben";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = "Bitte gültige E-Mail eingeben";
+    if (!form.plz.trim()) errs.plz = "Bitte PLZ eingeben";
+    else if (!/^\d{5}$/.test(form.plz.trim())) errs.plz = "Bitte gültige 5-stellige PLZ";
+    setFormErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const canNext = () => {
+    if (step === 0) return !!d.gebaeude;
+    if (step === 1) return !!d.baujahr;
+    if (step === 2) return true;
+    if (step === 3) return !!d.heizung && (d.heizung !== 'gas' || (!!d.gasAlter && !!d.eigennutzer));
+    if (step === 4) return !!d.einkommen;
+    return false;
+  };
+  const nextStep = () => {
+    if (step < 4) { setStep(step + 1); trackEvent('funnel_step', { step: ['gebaeude','baujahr','wohnflaeche','heizung'][step] || step }); setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50); return; }
+    if (step === 4) { const r = calc(d); setRes(r); if(r) { d._wpLabel = r.w.label; d._foerd = r.foerd; d._pct = r.pct; d._eig = r.eig; d._jE = r.jE; } setStep(5); trackEvent('funnel_result', { foerderung: r?.foerd, prozent: r?.pct }); setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50); }
+  };
+  const prevStep = () => { setStep(step - 1); setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50); };
+  const reset = () => { setStep(0); setD({ flaeche: 120 }); setRes(null); setRevealed(false); setSending(false); setFormErrors({}); setEmail(""); setForm({ name: "", tel: "", plz: "" }); setGateStep(1); };
+  const start = () => { setStep(0); trackEvent('funnel_start'); setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50); };
+
+  return (
+    <div className="kz-root" style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'Outfit',-apple-system,sans-serif" }}>
+      <link href="https://fonts.bunny.net/css2?family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+      <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+        @media(min-width:768px){.kz-root{font-size:17px !important}.kz-hero-title{font-size:40px !important}.kz-step-title{font-size:24px !important}.kz-big-number{font-size:52px !important}.kz-container{max-width:540px !important}}`}</style>
+
+      {/* NAV */}
+      <nav style={{ position: "sticky", top: 0, zIndex: 100, padding: "12px 20px", background: "rgba(250,250,248,.95)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div onClick={goHome} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+          <div style={{ width: 28, height: 28, borderRadius: 6, background: `linear-gradient(135deg,${C.primary},${C.accent})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "#fff", fontWeight: 800 }}>K</div>
+          <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: "-.3px" }}><span style={{ color: C.primary }}>Klima</span>Zuschuss</span>
+        </div>
+        <button onClick={start} style={{ padding: "6px 13px", borderRadius: 7, background: C.primary, border: "none", color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Jetzt berechnen</button>
+      </nav>
+
+      {/* HERO */}
+      {step === -1 && (
+        <div className="kz-container" style={{ padding: "52px 20px 40px", maxWidth: 460, margin: "0 auto" }}>
+          <div style={{ fontSize: 11, color: C.primary, textTransform: "uppercase", letterSpacing: 3, fontWeight: 600, marginBottom: 12 }}>Förderrechner 2026</div>
+          <h1 className="kz-hero-title" style={{ fontSize: 32, fontWeight: 400, lineHeight: 1.18, fontFamily: "'Playfair Display',serif", margin: "0 0 14px" }}>
+            Bis zu <span style={{ color: C.accent }}>21.000 €</span> Zuschuss für Ihre neue Heizung
+          </h1>
+          <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.6, margin: "0 0 26px" }}>
+            In 2 Minuten erfahren Sie, wie viel Förderung Ihnen zusteht. Kostenlos und unverbindlich.
+          </p>
+          <button onClick={start} style={{ width: "100%", padding: 17, borderRadius: 12, cursor: "pointer", background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, border: "none", color: "#fff", fontSize: 15.5, fontWeight: 700, boxShadow: "0 6px 24px rgba(30,163,98,.22)", fontFamily: "'Outfit'", marginBottom: 10 }}>
+            Zuschuss berechnen →
+          </button>
+          <div style={{ textAlign: "center", fontSize: 12, color: C.dim }}>Kostenlos · Unverbindlich · 2 Minuten</div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginTop: 32 }}>
+            {[{ n: "70%", l: "Max. Förderung" }, { n: "2 Min", l: "Berechnung" }, { n: "100%", l: "Kostenlos" }].map((t, i) => (
+              <div key={i} style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 19, fontWeight: 800, color: C.accent }}>{t.n}</div>
+                <div style={{ fontSize: 10.5, color: C.dim }}>{t.l}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 9 }}>
+            {[
+              { i: "📈", t: "CO₂-Preis steigt auf 55–65 €/Tonne", d: "Gas und Öl werden jedes Jahr teurer. 2027 kommt der EU-Emissionshandel dazu." },
+              { i: "🏛️", t: "Staat zahlt bis zu 70% der Kosten", d: "KfW-Förderung: Grundförderung + Boni. Je schneller Sie handeln, desto höher der Bonus." },
+              { i: "📉", t: "Heizkosten um bis zu 60% senken", d: "Über 15 Jahre sparen Sie typischerweise 15.000 bis 25.000 €." },
+            ].map((c, i) => (
+              <div key={i} style={{ display: "flex", gap: 11, padding: 13, background: C.card, borderRadius: 10, border: `1px solid ${C.border}` }}>
+                <span style={{ fontSize: 20, flexShrink: 0 }}>{c.i}</span>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 1 }}>{c.t}</div>
+                  <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45 }}>{c.d}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* CALCULATOR STEPS */}
+      {step >= 0 && step <= 4 && (
+        <div ref={ref} className="kz-container" style={{ padding: 20, maxWidth: 460, margin: "0 auto" }}>
+          <div style={{ display: "flex", gap: 3, marginBottom: 20 }}>
+            {[0,1,2,3,4].map(i => (
+              <div key={i} style={{ flex: 1, height: 3, borderRadius: 2, background: i <= step ? C.primary : "rgba(0,0,0,.04)", transition: "background .25s" }} />
+            ))}
+          </div>
+          <div style={{ fontSize: 11.5, color: C.dim, marginBottom: 3 }}>Schritt {step + 1} von 5</div>
+          <h2 className="kz-step-title" style={{ fontSize: 20, fontWeight: 400, margin: "0 0 16px", fontFamily: "'Playfair Display',serif" }}>
+            {step === 0 && "Um welchen Gebäudetyp handelt es sich?"}
+            {step === 1 && "Wann wurde Ihr Gebäude gebaut?"}
+            {step === 2 && "Wie groß ist Ihre Wohnfläche?"}
+            {step === 3 && "Wie heizen Sie aktuell?"}
+            {step === 4 && "Wie hoch ist Ihr Haushaltseinkommen?"}
+          </h2>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+            {step === 0 && GEBAEUDE.map(o => <Card key={o.value} o={o} sel={d.gebaeude === o.value} onClick={() => setD({ ...d, gebaeude: o.value })} />)}
+            {step === 1 && BAUJAHR.map(o => <Card key={o.value} o={o} sel={d.baujahr === o.value} onClick={() => setD({ ...d, baujahr: o.value })} />)}
+            {step === 2 && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 18, padding: "12px 0" }}>
+                <div style={{ fontSize: 52, fontWeight: 800, color: C.primary, lineHeight: 1 }}>{d.flaeche || 120} m²</div>
+                <input type="range" min={60} max={300} step={10} value={d.flaeche || 120} onChange={e => setD({ ...d, flaeche: +e.target.value })} style={{ width: "100%", accentColor: C.primary, height: 6, cursor: "pointer" }} />
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: 11.5, color: C.dim }}><span>60 m²</span><span>300 m²</span></div>
+              </div>
+            )}
+            {step === 3 && HEIZUNG.map(o => <Card key={o.value} o={o} sel={d.heizung === o.value} onClick={() => setD({ ...d, heizung: o.value, gasAlter: o.value !== 'gas' ? undefined : d.gasAlter, eigennutzer: o.value !== 'gas' ? undefined : d.eigennutzer })} />)}
+            {step === 3 && d.heizung === 'gas' && (
+              <div style={{ marginTop: 14, padding: 16, background: "rgba(26,143,85,.04)", border: "1px solid rgba(26,143,85,.12)", borderRadius: 12 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 10 }}>Für die korrekte Berechnung Ihres Geschwindigkeitsbonus:</div>
+                <div style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>Wie alt ist Ihre Gasheizung?</div>
+                <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                  {[{v:'ueber20',l:'20 Jahre oder älter'},{v:'unter20',l:'Unter 20 Jahre'},{v:'weissnicht',l:'Weiß nicht'}].map(o => (
+                    <button key={o.v} onClick={() => setD({...d, gasAlter: o.v})} style={{
+                      flex: 1, padding: "10px 8px", borderRadius: 8, cursor: "pointer", fontSize: 12.5, fontWeight: 600,
+                      background: d.gasAlter === o.v ? C.primary : C.card,
+                      color: d.gasAlter === o.v ? "#fff" : C.text,
+                      border: `1px solid ${d.gasAlter === o.v ? C.primary : C.border}`,
+                      fontFamily: "'Outfit'",
+                    }}>{o.l}</button>
+                  ))}
+                </div>
+                <div style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>Wohnen Sie selbst in dem Objekt?</div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {[{v:'ja',l:'Ja, ich wohne dort'},{v:'nein',l:'Nein (Vermietung o. ä.)'}].map(o => (
+                    <button key={o.v} onClick={() => setD({...d, eigennutzer: o.v})} style={{
+                      flex: 1, padding: "10px 8px", borderRadius: 8, cursor: "pointer", fontSize: 12.5, fontWeight: 600,
+                      background: d.eigennutzer === o.v ? C.primary : C.card,
+                      color: d.eigennutzer === o.v ? "#fff" : C.text,
+                      border: `1px solid ${d.eigennutzer === o.v ? C.primary : C.border}`,
+                      fontFamily: "'Outfit'",
+                    }}>{o.l}</button>
+                  ))}
+                </div>
+                <div style={{ fontSize: 11, color: C.dim, marginTop: 8 }}>Der Geschwindigkeitsbonus (+20%) gilt bei Gasheizungen nur für Eigennutzer mit Heizung ab 20 Jahren.</div>
+              </div>
+            )}
+            {step === 4 && (<>
+              <div style={{ fontSize: 12, color: C.muted, marginBottom: 5, lineHeight: 1.5 }}>Das zu versteuernde Haushaltseinkommen bestimmt den Einkommensbonus (+30%). Sie finden es auf Ihrem letzten Steuerbescheid.</div>
+              {EINKOMMEN.map(o => <Card key={o.value} o={o} sel={d.einkommen === o.value} onClick={() => setD({ ...d, einkommen: o.value })} />)}
+            </>)}
+          </div>
+
+          <div style={{ display: "flex", gap: 9, marginTop: 20 }}>
+            {step > 0 && <button onClick={prevStep} style={{ padding: "13px 16px", borderRadius: 10, cursor: "pointer", background: C.card, border: `1px solid ${C.border}`, color: C.muted, fontSize: 13.5, fontWeight: 600 }}>←</button>}
+            <button onClick={() => canNext() && nextStep()} style={{
+              flex: 1, padding: 14, borderRadius: 10, cursor: canNext() ? "pointer" : "default",
+              background: canNext() ? `linear-gradient(135deg,${C.primary},${C.primaryDark})` : "rgba(0,0,0,.04)",
+              border: "none", color: canNext() ? "#fff" : "rgba(0,0,0,.2)",
+              fontSize: 14, fontWeight: 700, transition: "all .15s", fontFamily: "'Outfit'",
+            }}>
+              {step === 4 ? "Ergebnis berechnen" : "Weiter"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════ RESULT ═══════════════ */}
+      {step === 5 && res && (
+        <div className="kz-container" style={{ padding: 20, maxWidth: 460, margin: "0 auto", animation: "fadeUp .5s ease both" }}>
+
+          {/* Empfehlung */}
+          <div style={{ background: `linear-gradient(135deg,rgba(26,143,85,.06),rgba(26,143,85,.02))`, border: `1px solid rgba(26,143,85,.12)`, borderRadius: 13, padding: 16, marginBottom: 18 }}>
+            <div style={{ fontSize: 11, color: C.primary, textTransform: "uppercase", letterSpacing: 2, fontWeight: 600, marginBottom: 5 }}>Unsere Empfehlung</div>
+            <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 5 }}>{res.w.label}</div>
+            <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>{res.w.grund}</div>
+          </div>
+
+          {/* Big Number - BLURRED until final reveal */}
+          <div style={{ textAlign: "center", marginBottom: 16 }}>
+            <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6, fontWeight: 700, letterSpacing: .2 }}>Ihr geschätzter Zuschuss</div>
+            {revealed ? (
+              <div className="kz-big-number" style={{ fontSize: 44, fontWeight: 800, color: C.accent, lineHeight: 1.1, animation: "fadeUp .5s ease both" }}>{fmt(res.foerd)} €</div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                <span className="kz-big-number" style={{ fontSize: 44, fontWeight: 800, color: C.dim, lineHeight: 1.1, filter: "blur(10px)", userSelect: "none" }}>16.500 €</span>
+                <span style={{ fontSize: 18 }}>🔒</span>
+              </div>
+            )}
+            {revealed && <div style={{ fontSize: 14.5, color: C.muted, marginTop: 3 }}>{res.pct}% der förderfähigen Kosten</div>}
+          </div>
+
+          {/* ══════════ SINGLE FORM — all 4 fields with micro-copy ══════════ */}
+          {!revealed && (
+            <div style={{ animation: "fadeUp .3s ease both", marginBottom: 18, background: `linear-gradient(135deg,rgba(196,146,42,.06),rgba(196,146,42,.02))`, border: `1px solid rgba(196,146,42,.15)`, borderRadius: 13, padding: 18 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, textAlign: "center" }}>Ihre Berechnung ist fertig ✓</div>
+              <div style={{ fontSize: 13.5, color: C.muted, marginBottom: 14, lineHeight: 1.5, textAlign: "center" }}>Tragen Sie Ihre Daten ein und sehen Sie Ihren persönlichen Zuschuss direkt im Anschluss.</div>
+
+              <div style={{ marginBottom: 10 }}>
+                <input placeholder="Vor- und Nachname *" value={form.name} onChange={e => { setForm({ ...form, name: e.target.value }); setFormErrors(p => ({...p, name: undefined})); }} style={{ ...INP, borderColor: formErrors.name ? "#D94040" : C.border }} />
+                {formErrors.name && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.name}</div>}
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <input placeholder="Telefonnummer *" type="tel" inputMode="tel" value={form.tel} onChange={e => { setForm({ ...form, tel: e.target.value }); setFormErrors(p => ({...p, tel: undefined})); }} style={{ ...INP, borderColor: formErrors.tel ? "#D94040" : C.border }} />
+                {formErrors.tel && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.tel}</div>}
+                <div style={{ fontSize: 11, color: C.dim, marginTop: 4 }}>Für die kostenlose Beratung durch Ihren Fachberater.</div>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <input type="email" inputMode="email" placeholder="E-Mail-Adresse *" value={email} onChange={e => { setEmail(e.target.value); setFormErrors(p => ({...p, email: undefined})); }} style={{ ...INP, borderColor: formErrors.email ? "#D94040" : C.border }} />
+                {formErrors.email && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.email}</div>}
+                <div style={{ fontSize: 11, color: C.dim, marginTop: 4 }}>Wir senden Ihnen Ihr Ergebnis zusätzlich per E-Mail.</div>
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <input placeholder="Postleitzahl *" inputMode="numeric" value={form.plz} onChange={e => { setForm({ ...form, plz: e.target.value }); setFormErrors(p => ({...p, plz: undefined})); }} style={{ ...INP, borderColor: formErrors.plz ? "#D94040" : C.border }} />
+                {formErrors.plz && <div style={{ fontSize: 12, color: "#D94040", marginTop: 3 }}>{formErrors.plz}</div>}
+                <div style={{ fontSize: 11, color: C.dim, marginTop: 4 }}>Für die regionale Förderprüfung.</div>
+              </div>
+
+              <button onClick={async () => {
+                trackEvent('gate1_attempt', { hasName: !!form.name.trim(), hasTel: !!form.tel.trim(), hasEmail: !!email.trim(), hasPlz: !!form.plz.trim() });
+                if (validateForm()) {
+                  setSending(true);
+                  await submitLead(form, d, email);
+                  trackConversion();
+                  trackEvent('gate1_submitted', { plz: form.plz });
+                  trackEvent('lead_submitted', { plz: form.plz });
+                  setSending(false);
+                  setRevealed(true);
+                  setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50);
+                }
+              }} style={{
+                width: "100%", padding: 16, borderRadius: 10, cursor: "pointer",
+                background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`,
+                border: "none", color: "#fff", fontSize: 15, fontWeight: 700, fontFamily: "'Outfit'",
+                boxShadow: "0 4px 16px rgba(26,143,85,.25)",
+              }}>{sending ? "Wird geladen..." : "Ergebnis anzeigen"}</button>
+              <div style={{ fontSize: 11, color: C.dim, marginTop: 10, textAlign: "center", lineHeight: 1.6 }}>🔒 Kostenlos & unverbindlich. Keine Werbeanrufe.<br/>Ihre Daten werden verschlüsselt übertragen.</div>
+            </div>
+          )}
+
+          {/* Aufschlüsselung - ALWAYS VISIBLE as teaser */}
+          <div style={{ background: C.card, borderRadius: 13, padding: "16px 14px", marginBottom: 16 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 12 }}>Ihre Förder-Bausteine</div>
+            <ABar label="Grundförderung" pct={res.gr} color={C.primary} delay={150} />
+            <ABar label="Effizienzbonus" pct={res.ef} color={C.accent} delay={300} />
+            <ABar label="Tempo-Bonus" pct={res.gs} color="#E8720C" delay={450} />
+            <ABar label="Einkommensbonus" pct={res.ei} color="#3B82F6" delay={600} />
+            <div style={{ textAlign: "right", fontSize: 13, fontWeight: 700, color: C.primary, marginTop: 6 }}>Gesamt: {res.pct}%</div>
+          </div>
+
+          {/* SUCCESS - shown after reveal */}
+          {revealed && (
+            <div style={{ animation: "fadeUp .4s ease both", marginBottom: 16, background: `linear-gradient(135deg,rgba(26,143,85,.06),rgba(26,143,85,.02))`, border: `1px solid rgba(26,143,85,.12)`, borderRadius: 13, padding: 18, textAlign: "center" }}>
+              <div style={{ fontSize: 28, marginBottom: 6 }}>✅</div>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>Anfrage gesendet</div>
+              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5 }}>
+                Ein Fachberater aus Ihrer Region wird sich in Kürze bei Ihnen melden, um einen persönlichen Termin bei Ihnen vor Ort zu vereinbaren.
+              </div>
+            </div>
+          )}
+
+          {/* Neu berechnen */}
+          <button onClick={reset} style={{ width: "100%", padding: 12, borderRadius: 10, cursor: "pointer", background: "transparent", border: `1px solid ${C.border}`, color: C.dim, fontSize: 13, marginBottom: 8 }}>Neu berechnen</button>
+          <div style={{ fontSize: 10, color: C.faint, textAlign: "center", lineHeight: 1.5 }}>* Unverbindliche Schätzung auf Basis der BEG-Richtlinien 2026.</div>
+        </div>
+      )}
+
+      <div style={{ marginTop: 44, padding: 18, borderTop: `1px solid ${C.border}`, textAlign: "center", fontSize: 12, color: C.dim }}>
+        <span style={{ color: C.primary, fontWeight: 600 }}>Klima</span>Zuschuss · Ihr Weg zur klimafreundlichen Heizung<br />
+        <a href="/impressum.html" style={{ color: C.dim, textDecoration: "none", marginRight: 12 }}>Impressum</a>
+        <a href="/datenschutz.html" style={{ color: C.dim, textDecoration: "none", marginRight: 12 }}>Datenschutz</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); if(window.kzResetCookies) window.kzResetCookies(); }} style={{ color: C.dim, textDecoration: "none" }}>Cookie-Einstellungen</a><br />
+        © 2026 klimazuschuss.de
+      </div>
+    </div>
+  );
 }
