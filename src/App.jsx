@@ -200,6 +200,7 @@ export default function App() {
     const errs = {};
     if (!form.name.trim()) errs.name = "Bitte Name eingeben";
     if (!form.tel.trim()) errs.tel = "Bitte Telefonnummer eingeben";
+    else { const digits = form.tel.replace(/\D/g,''); if (digits.length < 10) errs.tel = "Bitte gültige Telefonnummer (mind. 10 Ziffern)"; }
     if (!email.trim()) errs.email = "Bitte E-Mail eingeben";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = "Bitte gültige E-Mail eingeben";
     if (!form.plz.trim()) errs.plz = "Bitte PLZ eingeben";
@@ -458,6 +459,31 @@ export default function App() {
           <div style={{ fontSize: 10, color: C.faint, textAlign: "center", lineHeight: 1.5 }}>* Unverbindliche Schätzung auf Basis der BEG-Richtlinien 2026.</div>
         </div>
       )}
+
+      {/* ══════════ GUT ZU WISSEN — Blog/Ratgeber Sektion ══════════ */}
+      <div style={{ marginTop: 36, padding: "0 4px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+          <span style={{ fontSize: 16 }}>💡</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Gut zu wissen</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {[
+            { href: "/blog-waermepumpe-foerderung-2026.html", tag: "Förderung", title: "Bis zu 21.000 € Zuschuss", desc: "Alle Fördersätze 2026" },
+            { href: "/blog-waermepumpe-kosten-2026.html", tag: "Kosten", title: "Was kostet eine Wärmepumpe?", desc: "Mit Rechenbeispielen" },
+            { href: "/blog-gasheizung-austauschen-2026.html", tag: "Heizungstausch", title: "Gasheizung austauschen", desc: "Pflicht, Kosten, Timing" },
+            { href: "/blog-waermepumpe-altbau.html", tag: "Altbau", title: "Wärmepumpe im Altbau", desc: "55-Grad-Selbsttest" },
+          ].map(a => (
+            <a key={a.href} href={a.href} style={{ background: C.card, borderRadius: 10, padding: "12px 10px", border: `1px solid ${C.border}`, textDecoration: "none", display: "block" }}>
+              <div style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: 1, color: C.primary, fontWeight: 600, marginBottom: 4 }}>{a.tag}</div>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, marginBottom: 3, lineHeight: 1.3 }}>{a.title}</div>
+              <div style={{ fontSize: 10.5, color: C.dim, lineHeight: 1.3 }}>{a.desc}</div>
+            </a>
+          ))}
+        </div>
+        <div style={{ textAlign: "center", marginTop: 10 }}>
+          <span style={{ fontSize: 11, color: C.primary, fontWeight: 600 }}>Alle Ratgeber →</span>
+        </div>
+      </div>
 
       <div style={{ marginTop: 44, padding: 18, borderTop: `1px solid ${C.border}`, textAlign: "center", fontSize: 12, color: C.dim }}>
         <span style={{ color: C.primary, fontWeight: 600 }}>Klima</span>Zuschuss · Ihr Weg zur klimafreundlichen Heizung<br />
