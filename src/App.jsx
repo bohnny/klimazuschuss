@@ -445,11 +445,17 @@ export default function App() {
 
           {/* SUCCESS - shown after reveal */}
           {revealed && (
-            <div style={{ animation: "fadeUp .4s ease both", marginBottom: 16, background: `linear-gradient(135deg,rgba(26,143,85,.06),rgba(26,143,85,.02))`, border: `1px solid rgba(26,143,85,.12)`, borderRadius: 13, padding: 18, textAlign: "center" }}>
-              <div style={{ fontSize: 28, marginBottom: 6 }}>✅</div>
-              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>Anfrage gesendet</div>
-              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5 }}>
-                Ein Fachberater aus Ihrer Region wird sich in Kürze bei Ihnen melden, um einen persönlichen Termin bei Ihnen vor Ort zu vereinbaren.
+            <div style={{ animation: "fadeUp .4s ease both", marginBottom: 16, background: `linear-gradient(135deg,${C.primary},${C.primaryDark})`, borderRadius: 14, padding: "22px 18px", textAlign: "center", color: "#fff" }}>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10, lineHeight: 1.4 }}>Ihr nächster Schritt</div>
+              <div style={{ fontSize: 38, marginBottom: 8 }}>📋</div>
+              <div style={{ fontSize: 17, fontWeight: 800, marginBottom: 8, lineHeight: 1.3 }}>Förderantrag? Erledigen wir.</div>
+              <div style={{ fontSize: 14, lineHeight: 1.6, opacity: .9, marginBottom: 14 }}>
+                Ihr persönlicher Fachberater meldet sich in Kürze bei Ihnen. Er übernimmt die komplette Förderabwicklung bei der KfW — <strong style={{ color: "#fff" }}>kostenlos und ohne Papierkram für Sie.</strong>
+              </div>
+              <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+                <div style={{ background: "rgba(255,255,255,.18)", borderRadius: 8, padding: "8px 12px", fontSize: 12, fontWeight: 600 }}>✓ Kostenlose Beratung</div>
+                <div style={{ background: "rgba(255,255,255,.18)", borderRadius: 8, padding: "8px 12px", fontSize: 12, fontWeight: 600 }}>✓ Antrag inklusive</div>
+                <div style={{ background: "rgba(255,255,255,.18)", borderRadius: 8, padding: "8px 12px", fontSize: 12, fontWeight: 600 }}>✓ Kein Papierkram</div>
               </div>
             </div>
           )}
